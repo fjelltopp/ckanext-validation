@@ -163,13 +163,13 @@ def run_validation_job(resource):
 def _load_dataframe(data, extension):
     # Read in table
     if extension == "csv":
-        df = pandas.read_csv(open(data, 'rU'), header=None, index_col=None)
+        df = _read_csv_file(data, extension)
     elif extension in ["xls", "xlsx"]:
-        df = pandas.read_excel(open(data, 'rU'), header=None, index_col=None)
+        df = _read_excel_file(data, extension)
     elif extension in ["shp"]:
-        df = _read_shapefile(data)
+        df = _read_shape_file(data)
     elif extension in ['geojson']:
-        df = _read_geojson(data)
+        df = _read_geojson_file(data)
     else:
         raise t.ValidationError({
             'Incorrect Extension': ['Cannot validate the file. Please check'
@@ -180,43 +180,44 @@ def _load_dataframe(data, extension):
     return df
 
 
-def _transpose_dataframe(df):
-    # Transpose table
-    if len(df.columns) == 0:
-        transposed = df
-    else:
-        transposed = df.T
-    return transposed
+def _read_csv_file(data, extension=None):
+    try:
+        return pandas.read_csv(open(data, 'rU'), header=None, index_col=None)
+    except Exception as e:
+        extension = "(" + extension + ")" if extension else ""
+        raise t.ValidationError({
+            'Format': [
+                'Could not read your CSV file. Are you sure your specified '
+                'format ' + extension + ' is correct? (' + str(e) + ')'
+            ]
+        })
 
 
-def _excel_string_io_wrapper(df):
-    df = df.iloc[1:]  # Remove headers
-    out = cStringIO.StringIO()
-    df.to_excel(out, columns=None, index=None)
-    out.seek(0)
-    return out
+def _read_excel_file(data, extension=None):
+    try:
+        excel_file = pandas.ExcelFile(open(data, 'rU'))
+        df = pandas.read_excel(excel_file, header=None, index_col=None)
+
+    except Exception as e:
+        extension = "(" + extension + ")" if extension else ""
+        raise t.ValidationError({
+            'Format': [
+                'Could not read your Excel file. Are you sure your specified '
+                'format ' + extension + ' is correct? (' + str(e) + ')'
+            ]
+        })
+
+    # Can only validate excel files with one worksheet.
+    if len(excel_file.sheet_names) != 1:
+        raise t.ValidationError({
+            'Multiple Worksheets': ['Your Excel file must contain only '
+                                    'one worksheet for validation.']
+        })
+
+    return df
 
 
-def _validate_table(source, _format=u'csv', schema=None, **options):
-    report = validate(
-        source,
-        format=_format,
-        schema=schema,
-        preset='unordered-table',
-        **options
-    )
-    log.debug(u'Validating source: {}'.format(source))
-    return report
-
-
-def _get_site_user_api_key():
-    site_user_name = t.get_action('get_site_user')({'ignore_auth': True}, {})
-    site_user = t.get_action('get_site_user')(
-        {'ignore_auth': True}, {'id': site_user_name})
-    return site_user['apikey']
-
-
-def _read_geojson(geojson_path):
+def _read_geojson_file(geojson_path):
     """
     Reads a geojson file in as a pandas dataframe ready for validation.
     """
@@ -252,7 +253,7 @@ def _read_geojson(geojson_path):
     return df
 
 
-def _read_shapefile(shp_path):
+def _read_shape_file(shp_path):
     """
     Read a shapefile into a Pandas dataframe with a 'coords' column holding
     the geometry information. This uses the pyshp package.
@@ -304,6 +305,42 @@ def _read_shapefile(shp_path):
         raise t.ValidationError({
             'SHP File': [u'Not a valid shp file: ' + str(e)]
         })
+
+
+def _transpose_dataframe(df):
+    # Transpose table
+    if len(df.columns) == 0:
+        transposed = df
+    else:
+        transposed = df.T
+    return transposed
+
+
+def _excel_string_io_wrapper(df):
+    df = df.iloc[1:]  # Remove headers
+    out = cStringIO.StringIO()
+    df.to_excel(out, columns=None, index=None)
+    out.seek(0)
+    return out
+
+
+def _validate_table(source, _format=u'csv', schema=None, **options):
+    report = validate(
+        source,
+        format=_format,
+        schema=schema,
+        preset='unordered-table',
+        **options
+    )
+    log.debug(u'Validating source: {}'.format(source))
+    return report
+
+
+def _get_site_user_api_key():
+    site_user_name = t.get_action('get_site_user')({'ignore_auth': True}, {})
+    site_user = t.get_action('get_site_user')(
+        {'ignore_auth': True}, {'id': site_user_name})
+    return site_user['apikey']
 
 
 def _prep_foreign_keys(package, table_schema, resource, df):
