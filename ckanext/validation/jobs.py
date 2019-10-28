@@ -14,7 +14,6 @@ import ckantoolkit as t
 import shapefile
 import zipfile
 from helpers import validation_load_json_schema
-import ckan.lib.base as base
 from collections import OrderedDict
 from ckanext.validation.model import Validation
 
@@ -184,11 +183,12 @@ def _read_csv_file(data, extension=None):
     try:
         return pandas.read_csv(open(data, 'rb'), header=None, index_col=None)
     except Exception as e:
+        log.warning(e, exc_info=True)
         extension = "(" + extension + ")" if extension else ""
         raise t.ValidationError({
             'Format': [
                 'Could not read your CSV file. Are you sure your specified '
-                'format ' + extension + ' is correct? (' + str(e) + ')'
+                'format {} is correct?'.format(extension)
             ]
         })
 
@@ -199,11 +199,12 @@ def _read_excel_file(data, extension=None):
         df = pandas.read_excel(excel_file, header=None, index_col=None)
 
     except Exception as e:
+        log.warning(e, exc_info=True)
         extension = "(" + extension + ")" if extension else ""
         raise t.ValidationError({
             'Format': [
                 'Could not read your Excel file. Are you sure your specified '
-                'format ' + extension + ' is correct? (' + str(e) + ')'
+                'format {} is correct?'.format(extension)
             ]
         })
 
