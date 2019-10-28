@@ -182,7 +182,7 @@ def _load_dataframe(data, extension):
 
 def _read_csv_file(data, extension=None):
     try:
-        return pandas.read_csv(open(data, 'rU'), header=None, index_col=None)
+        return pandas.read_csv(open(data, 'rb'), header=None, index_col=None)
     except Exception as e:
         extension = "(" + extension + ")" if extension else ""
         raise t.ValidationError({
@@ -195,7 +195,7 @@ def _read_csv_file(data, extension=None):
 
 def _read_excel_file(data, extension=None):
     try:
-        excel_file = pandas.ExcelFile(open(data, 'rU'))
+        excel_file = pandas.ExcelFile(open(data, 'rb'))
         df = pandas.read_excel(excel_file, header=None, index_col=None)
 
     except Exception as e:
