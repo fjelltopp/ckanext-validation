@@ -93,9 +93,14 @@ def run_validation_job(resource):
     if schema.get("transpose"):
         altered_df = _transpose_dataframe(original_df)
 
+    # Ingest NA values
+    if schema.get("naValue"):
+        altered_df = _remove_na(schema["naValue"], altered_df)
+
     # Foreign keys requires using resource metadata in validation step
     # We insert the metadata into schema here
-    _prep_foreign_keys(dataset, schema, resource, altered_df)
+    if schema.get('foreignKeys', False):
+        _prep_foreign_keys(dataset, schema, resource, altered_df)
 
     # Having extracted/altered data, we wrap up as an excel StringIO.
     # This keeps dataframe in memory, rather than having to write back to disk.
@@ -342,6 +347,10 @@ def _get_site_user_api_key():
     site_user = t.get_action('get_site_user')(
         {'ignore_auth': True}, {'id': site_user_name})
     return site_user['apikey']
+
+
+def _remove_na(na_value, df):
+    return df.replace(na_value, pandas.np.NaN)
 
 
 def _prep_foreign_keys(package, table_schema, resource, df):
