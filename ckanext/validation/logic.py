@@ -633,8 +633,12 @@ def _run_sync_validation(resource_id, local_upload=False, new_resource=True):
         {u'resource_id': resource_id})
 
     report = validation['report']
+    allow_invalid = bool(t.config.get(
+        'ckanext.validation.allow_invalid_data',
+        False
+    ))
 
-    if not report['valid']:
+    if not report['valid'] and not allow_invalid:
 
         # Delete validation object
         t.get_action(u'resource_validation_delete')(
