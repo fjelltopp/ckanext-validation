@@ -99,7 +99,7 @@ def run_validation_job(resource):
 
     # Foreign keys requires using resource metadata in validation step
     # We insert the metadata into schema here
-    if schema.get('foreignKeys', False):
+    if schema.get("foreignKeys"):
         _prep_foreign_keys(dataset, schema, resource, altered_df)
 
     # Having extracted/altered data, we wrap up as an excel StringIO.
