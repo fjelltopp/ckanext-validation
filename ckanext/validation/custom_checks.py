@@ -77,6 +77,13 @@ class ForeignKeyCheck(object):
 
             if field.descriptor.get('foreignKey'):
 
+                cache = self.__foreign_fields_cache.get(cell['header'])
+                if not cache:
+                    self.__foreign_fields_cache = merge_two_dicts(
+                        ForeignKeyCheck._create_foreign_fields_cache([cell]),
+                        self.__foreign_fields_cache
+                    )
+
                 valid_values = self.__foreign_fields_cache[cell['header']]['values']
                 resource_id = self.__foreign_fields_cache[cell['header']]['resource_id']
                 resource_url = self.__foreign_fields_cache[cell['header']]['resource_url']
@@ -147,6 +154,7 @@ class ForeignKeyCheck(object):
                     'resource_url': res_url
                 }
 
+        log.debug("Foreign key cache: {}".format(cache))
         return cache
 
     @staticmethod
@@ -185,3 +193,9 @@ def register_translator():
     registry.prepare()
     from pylons import translator
     registry.register(translator, MockTranslator())
+
+
+def merge_two_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
