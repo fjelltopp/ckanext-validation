@@ -93,6 +93,11 @@ def run_validation_job(resource):
     if schema.get("transpose"):
         altered_df = _transpose_dataframe(original_df)
 
+    # For e.g. geojson there is no specified column ordering in the input.
+    # Here we reorder columns if necessary for Goodtables to process.
+    if not schema.get('require_field_order', True):
+        altered_df, column_mapping = _reorder_columns(schema, altered_df)
+
     # Ingest NA values
     if schema.get("naValue"):
         altered_df = _remove_na(schema["naValue"], altered_df)
@@ -114,16 +119,16 @@ def run_validation_job(resource):
     for index, warning in enumerate(report.get('warnings', [])):
         report['warnings'][index] = re.sub(r'Table ".*"', 'Table', warning)
 
+    # If table's columns reordered, correct the column ordering in report
+    if not schema.get('require_field_order', True):
+        report['tables'][0]['errors'] = _correct_column_ordering(
+            report['tables'][0]['errors'],
+            column_mapping
+        )
+
     # If table was transposed for validation, reverse the transposition
     if schema.get("transpose"):
-        report_string = json.dumps(report)
-        report_string = re.sub(r'(column)(-| )', r'x987asdwn23l\2', report_string)
-        report_string = re.sub(r'(Column)(-| )', r'x987asdwn23u\2', report_string)
-        report_string = re.sub(r'(row)(-| )', r'column\2', report_string)
-        report_string = re.sub(r'(Row)(-| )', r'Column\2', report_string)
-        report_string = re.sub(r'x987asdwn23l', 'row', report_string)
-        report_string = re.sub(r'x987asdwn23u', 'Row', report_string)
-        report = json.loads(report_string)
+        report = _correct_transposition(report)
 
     # FIXME: Not clear on why I have to add the row back in to the report here
     def get_row(x):
@@ -322,6 +327,17 @@ def _transpose_dataframe(df):
     return transposed
 
 
+def _correct_transposition(report):
+    report_string = json.dumps(report)
+    report_string = re.sub(r'(column)(-| )', r'x987asdwn23l\2', report_string)
+    report_string = re.sub(r'(Column)(-| )', r'x987asdwn23u\2', report_string)
+    report_string = re.sub(r'(row)(-| )', r'column\2', report_string)
+    report_string = re.sub(r'(Row)(-| )', r'Column\2', report_string)
+    report_string = re.sub(r'x987asdwn23l', 'row', report_string)
+    report_string = re.sub(r'x987asdwn23u', 'Row', report_string)
+    return json.loads(report_string)
+
+
 def _excel_string_io_wrapper(df):
     df = df.iloc[1:]  # Remove headers
     out = cStringIO.StringIO()
@@ -335,7 +351,6 @@ def _validate_table(source, _format=u'csv', schema=None, **options):
         source,
         format=_format,
         schema=schema,
-        preset='unordered-table',
         **options
     )
     log.debug(u'Validating source: {}'.format(source))
@@ -395,3 +410,68 @@ def _prep_foreign_keys(package, table_schema, resource, df):
         for field in table_schema['fields']:
             if field['name'] in foreign_keys.keys():
                 field['foreignKey'] = foreign_keys[field['name']]
+
+
+def _reorder_columns(schema, df):
+    """
+    Creating a preset in which you can configure whether the order of columns matters.
+    """
+
+    log.debug(df.dtypes)
+    log.debug("Considering whether to switch column order")
+
+    required_field_order = list(map(
+        lambda x: x['name'],
+        schema.get('fields', [])
+    ))
+    submitted_field_order = list(df.columns)
+    errors = {}
+    for f in required_field_order:
+        if f in submitted_field_order:
+            submitted_field_order.remove(f)
+        else:
+            df[f] = pandas.np.NaN
+            error_key = "Missing {} field".format(f)
+            error_message = "Uploaded data file is missing required field \"{}\"".format(f)
+            errors[error_key] = [error_message]
+
+    if errors:
+        raise t.ValidationError(errors)
+
+    new_column_order = list(required_field_order + submitted_field_order)
+    old_column_order = list(df.columns)
+    column_mapping = {}
+
+    log.debug("New Order: " + str(new_column_order))
+    log.debug("Old Order: " + str(old_column_order))
+
+    if not new_column_order == old_column_order:
+        log.debug("Switching column order")
+        df = df[new_column_order]
+        log.debug(
+            'The fields have had to be reordered to pass validation. '
+            'Column numbers in error messages may be wrong!'
+        )
+        for i, col in enumerate(old_column_order):
+            column_mapping[i+1] = new_column_order.index(col)+1
+        log.debug("Column Number Mapping: " + str(column_mapping))
+
+    log.debug(df)
+
+    return df, column_mapping
+
+
+def _correct_column_ordering(errors, column_mapping):
+    def correct_columns(x):
+        new_col = column_mapping[x['column-number']]
+        x['column-number'] = new_col
+        x['message'] = re.sub(
+            r'(olumn)( |-)([0-9]*)',
+            'olumn {}'.format(new_col),
+            x['message']
+        )
+        return x
+    logging.debug("Fixing Column Order For Errors : {}".format(
+        errors
+    ))
+    return list(map(correct_columns, errors))

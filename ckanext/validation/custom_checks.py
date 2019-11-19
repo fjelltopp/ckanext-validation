@@ -116,9 +116,13 @@ class ForeignKeyCheck(object):
 
     @staticmethod
     def _create_foreign_fields_cache(cells):
+
+        log.debug("Creating foreign key cache")
         cache = {}
+
         for column_number, cell in enumerate(cells, start=1):
 
+            log.debug("Cell: {}".format(cell))
             default_field = namedtuple('field', 'descriptor')
             field = cell.get('field', default_field(descriptor={}))
             foreign_key = field.descriptor.get('foreignKey')
@@ -154,7 +158,7 @@ class ForeignKeyCheck(object):
                     'resource_url': res_url
                 }
 
-        log.debug("Foreign key cache: {}".format(cache))
+        log.debug("Foreign Key cache: {}".format(cache))
         return cache
 
     @staticmethod
@@ -181,6 +185,7 @@ class ForeignKeyCheck(object):
             {'ignore_auth': True},
             data_dict
         )
+        log.debug("Got valid values: {}".format(result))
         valid_values = [str(x[field]) for x in result.get('records', [])]
         return valid_values
 

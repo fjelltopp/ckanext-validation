@@ -44,7 +44,6 @@ log = logging.getLogger(__name__)
 # Not used check decorator because code should be kept in a seperate module.
 registry.register_check(ForeignKeyCheck, 'foreign-key', None, None, None)
 registry.register_check(geometry_check, 'missing-geometry', None, None, None)
-registry.register_preset(unordered_preset, 'unordered-table')
 
 
 class ValidationPlugin(p.SingletonPlugin):
