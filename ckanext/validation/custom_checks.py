@@ -80,8 +80,8 @@ class ForeignKeyCheck(object):
                 cache = self.__foreign_fields_cache.get(cell['header'])
                 if not cache:
                     self.__foreign_fields_cache = merge_two_dicts(
-                        ForeignKeyCheck._create_foreign_fields_cache([cell]),
-                        self.__foreign_fields_cache
+                        self.__foreign_fields_cache,
+                        ForeignKeyCheck._create_foreign_fields_cache([cell])
                     )
 
                 valid_values = self.__foreign_fields_cache[cell['header']]['values']
