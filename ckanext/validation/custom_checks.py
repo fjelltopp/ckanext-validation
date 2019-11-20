@@ -77,16 +77,16 @@ class ForeignKeyCheck(object):
 
             if field.descriptor.get('foreignKey'):
 
-                cache = self.__foreign_fields_cache.get(cell['header'])
-                if not cache:
+                if not self.__foreign_fields_cache.get(cell['header']):
                     self.__foreign_fields_cache = merge_two_dicts(
                         self.__foreign_fields_cache,
                         ForeignKeyCheck._create_foreign_fields_cache([cell])
                     )
 
-                valid_values = self.__foreign_fields_cache[cell['header']]['values']
-                resource_id = self.__foreign_fields_cache[cell['header']]['resource_id']
-                resource_url = self.__foreign_fields_cache[cell['header']]['resource_url']
+                cell_cache = self.__foreign_fields_cache.get(cell['header'])
+                valid_values = cell_cache.get('values', [])
+                resource_id = cell_cache.get('resource_id', "")
+                resource_url = cell_cache.get('resource_url', "")
 
                 # Check if ref resource missing, so we only return one error
                 missing = self._missing_ref.get(field.descriptor.get('name'))
