@@ -417,35 +417,31 @@ def _reorder_columns(schema, df):
     Creating a preset in which you can configure whether the order of columns matters.
     """
 
-    log.debug(df.dtypes)
     log.debug("Considering whether to switch column order")
+    log.debug("Input dataframe column types: {}".format(df.dtypes))
 
-    required_field_order = list(map(
-        lambda x: x['name'],
-        schema.get('fields', [])
-    ))
+    required_field_order = [x['name'] for x in schema.get('fields', [])]
     submitted_field_order = list(df.columns)
+
     errors = {}
-    for f in required_field_order:
-        if f in submitted_field_order:
-            submitted_field_order.remove(f)
-        else:
-            df[f] = pandas.np.NaN
-            error_key = "Missing {} field".format(f)
-            error_message = "Uploaded data file is missing required field \"{}\"".format(f)
-            errors[error_key] = [error_message]
+    for field in set(required_field_order) - set(submitted_field_order):
+        df[field] = pandas.np.Nan
+        error_key = "Missing {} field".format(f)
+        error_message = "Uploaded data file is missing required field \"{}\"".format(f)
+        errors[error_key] = [error_message]
 
     if errors:
         raise t.ValidationError(errors)
 
-    new_column_order = list(required_field_order + submitted_field_order)
+    extra_columns = [x for x in submitted_field_order if x not in set(required_field_order)]
+    new_column_order = required_field_order + extra_columns
     old_column_order = list(df.columns)
     column_mapping = {}
 
     log.debug("New Order: " + str(new_column_order))
     log.debug("Old Order: " + str(old_column_order))
 
-    if not new_column_order == old_column_order:
+    if new_column_order != old_column_order:
         log.debug("Switching column order")
         df = df[new_column_order]
         log.debug(
@@ -453,10 +449,10 @@ def _reorder_columns(schema, df):
             'Column numbers in error messages may be wrong!'
         )
         for i, col in enumerate(old_column_order):
-            column_mapping[i+1] = new_column_order.index(col)+1
+            column_mapping[i+1] = new_column_order.index(col) + 1
         log.debug("Column Number Mapping: " + str(column_mapping))
 
-    log.debug(df)
+    log.debug("Reordered data frame: {}".format(df))
 
     return df, column_mapping
 
