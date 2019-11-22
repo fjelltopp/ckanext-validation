@@ -425,9 +425,10 @@ def _reorder_columns(schema, df):
 
     errors = {}
     for field in set(required_field_order) - set(submitted_field_order):
-        df[field] = pandas.np.Nan
-        error_key = "Missing {} field".format(f)
-        error_message = "Uploaded data file is missing required field \"{}\"".format(f)
+        df[field] = pandas.np.NaN
+        error_key = "Missing {} field".format(field)
+        error_message = ("Uploaded data file is missing required "
+                         "field \"{}\"".format(field))
         errors[error_key] = [error_message]
 
     if errors:
