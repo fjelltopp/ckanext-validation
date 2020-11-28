@@ -18,9 +18,6 @@ from ckanext.validation.tests.helpers import (
     VALID_CSV, INVALID_CSV, mock_uploads
 )
 
-import pydevd_pycharm
-pydevd_pycharm.settrace('host.docker.internal', port=9876, stdoutToServer=True, stderrToServer=True)
-
 PLUGIN_CONTROLLER = 'ckanext.validation.controller:ValidationController'
 
 @pytest.fixture
@@ -67,9 +64,8 @@ class TestResourceSchemaForm(object):
 
     def test_resource_form_create(self, app):
         dataset = Dataset()
-
-        env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
-        form = response.forms['resource-edit']
+        user = Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
 
         value = {
             'fields': [
@@ -79,24 +75,22 @@ class TestResourceSchemaForm(object):
         }
         json_value = json.dumps(value)
 
-        form['url'] = 'https://example.com/data.csv'
-        form['schema'] = json_value
-
-        url = url_for(
-            controller=PLUGIN_CONTROLLER,
-            action='save'
+        app.post(
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
+            data={
+                "url": "https://example.com/data.csv",
+                "schema": json_value,
+                "save": "go-dataset-complete",
+                "id": ""
+            }
         )
-
-        response = app.get(
-            url,
-            extra_environ={'REMOTE_USER': sysadmin['name'].encode('ascii')},
-            expect_errors=True
-        )
-        submit_and_follow(app, form, env, 'save')
 
         dataset = call_action('package_show', id=dataset['id'])
 
-        assert_equals(dataset['resources'][0]['schema'], value)
+        assert_equals(json.loads(dataset['resources'][0]['schema']), value)
 
     def test_resource_form_create_json(self, app):
         dataset = Dataset()
