@@ -4,21 +4,31 @@ import mock
 import datetime
 import pytest
 
+import ckan.model as model
+import ckanext.validation.model as vmodel
+
 from nose.tools import assert_in, assert_equals
 
 from ckan.tests.factories import Sysadmin, Dataset
 from ckan.tests.helpers import call_action, reset_db
+from ckan.lib.helpers import url_for
 
 from ckanext.validation.model import create_tables, tables_exist
 from ckanext.validation.tests.helpers import (
     VALID_CSV, INVALID_CSV, mock_uploads
 )
 
+import pydevd_pycharm
+pydevd_pycharm.settrace('host.docker.internal', port=9876, stdoutToServer=True, stderrToServer=True)
+
+PLUGIN_CONTROLLER = 'ckanext.validation.controller:ValidationController'
+
 @pytest.fixture
 def initdb():
     model.Session.remove()
     model.Session.configure(bind=model.meta.engine)
-    rmodel.init_tables()
+    if not vmodel.tables_exist():
+        vmodel.create_tables()
 
 def _get_resource_new_page_as_sysadmin(app, id):
     user = Sysadmin()
@@ -41,6 +51,8 @@ def _get_resource_update_page_as_sysadmin(app, id, resource_id):
 
 @pytest.mark.usefixtures(u'initdb')
 @pytest.mark.usefixtures(u'clean_db')
+@pytest.mark.ckan_config(u'ckan.plugins', u'validation')
+@pytest.mark.usefixtures(u'with_plugins')
 class TestResourceSchemaForm(object):
 
     def test_resource_form_includes_json_fields(self, app):
@@ -70,6 +82,16 @@ class TestResourceSchemaForm(object):
         form['url'] = 'https://example.com/data.csv'
         form['schema'] = json_value
 
+        url = url_for(
+            controller=PLUGIN_CONTROLLER,
+            action='save'
+        )
+
+        response = app.get(
+            url,
+            extra_environ={'REMOTE_USER': sysadmin['name'].encode('ascii')},
+            expect_errors=True
+        )
         submit_and_follow(app, form, env, 'save')
 
         dataset = call_action('package_show', id=dataset['id'])
@@ -222,7 +244,7 @@ class TestResourceSchemaForm(object):
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
-    def test_resource_form_update_url(self):
+    def test_resource_form_update_url(self, app):
         value = {
             'fields': [
                 {'name': 'code'},
@@ -254,7 +276,7 @@ class TestResourceSchemaForm(object):
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
-    def test_resource_form_update_upload(self):
+    def test_resource_form_update_upload(self, app):
         value = {
             'fields': [
                 {'name': 'code'},
@@ -300,7 +322,7 @@ class TestResourceSchemaForm(object):
 @pytest.mark.usefixtures(u'clean_db')
 class TestResourceValidationOptionsForm(object):
 
-    def test_resource_form_includes_json_fields(self):
+    def test_resource_form_includes_json_fields(self, app):
         dataset = Dataset()
 
         app = self._get_test_app()
@@ -309,7 +331,7 @@ class TestResourceValidationOptionsForm(object):
         assert_in('validation_options', form.fields)
         assert_equals(form.fields['validation_options'][0].tag, 'textarea')
 
-    def test_resource_form_create(self):
+    def test_resource_form_create(self, app):
         dataset = Dataset()
 
         app = self._get_test_app()
@@ -332,7 +354,7 @@ class TestResourceValidationOptionsForm(object):
 
         assert_equals(dataset['resources'][0]['validation_options'], value)
 
-    def test_resource_form_update(self):
+    def test_resource_form_update(self, app):
         value = {
             'delimiter': ';',
             'headers': 2,
@@ -387,7 +409,7 @@ class TestResourceValidationOnCreateForm(object):
             create_tables()
 
     @mock_uploads
-    def test_resource_form_create_valid(self, mock_open):
+    def test_resource_form_create_valid(self, mock_open, app):
         dataset = Dataset()
 
         app = self._get_test_app()
@@ -408,7 +430,7 @@ class TestResourceValidationOnCreateForm(object):
         assert 'validation_timestamp' in dataset['resources'][0]
 
     @mock_uploads
-    def test_resource_form_create_invalid(self, mock_open):
+    def test_resource_form_create_invalid(self, mock_open, app):
         dataset = Dataset()
 
         app = self._get_test_app()
@@ -442,7 +464,7 @@ class TestResourceValidationOnUpdateForm(object):
             create_tables()
 
     @mock_uploads
-    def test_resource_form_update_valid(self, mock_open):
+    def test_resource_form_update_valid(self, mock_open, app):
 
         dataset = Dataset(resources=[
             {
@@ -469,7 +491,7 @@ class TestResourceValidationOnUpdateForm(object):
         assert 'validation_timestamp' in dataset['resources'][0]
 
     @mock_uploads
-    def test_resource_form_update_invalid(self, mock_open):
+    def test_resource_form_update_invalid(self, mock_open, app):
 
         dataset = Dataset(resources=[
             {
@@ -509,7 +531,7 @@ class TestResourceValidationFieldsPersisted(object):
         if not tables_exist():
             create_tables()
 
-    def test_resource_form_fields_are_persisted(self):
+    def test_resource_form_fields_are_persisted(self, app):
 
         dataset = Dataset(resources=[
             {
