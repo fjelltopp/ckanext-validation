@@ -2,20 +2,23 @@ import json
 import io
 import mock
 import datetime
+import pytest
 
 from nose.tools import assert_in, assert_equals
 
-from ckantoolkit.tests.factories import Sysadmin, Dataset
-from ckantoolkit.tests.helpers import (
-    FunctionalTestBase, submit_and_follow, webtest_submit, call_action,
-    reset_db
-)
+from ckan.tests.factories import Sysadmin, Dataset
+from ckan.tests.helpers import call_action, reset_db
 
 from ckanext.validation.model import create_tables, tables_exist
 from ckanext.validation.tests.helpers import (
     VALID_CSV, INVALID_CSV, mock_uploads
 )
 
+@pytest.fixture
+def initdb():
+    model.Session.remove()
+    model.Session.configure(bind=model.meta.engine)
+    rmodel.init_tables()
 
 def _get_resource_new_page_as_sysadmin(app, id):
     user = Sysadmin()
@@ -36,18 +39,13 @@ def _get_resource_update_page_as_sysadmin(app, id, resource_id):
     )
     return env, response
 
+@pytest.mark.usefixtures(u'initdb')
+@pytest.mark.usefixtures(u'clean_db')
+class TestResourceSchemaForm(object):
 
-class TestResourceSchemaForm(FunctionalTestBase):
-
-    def setup(self):
-        reset_db()
-        if not tables_exist():
-            create_tables()
-
-    def test_resource_form_includes_json_fields(self):
+    def test_resource_form_includes_json_fields(self, app):
         dataset = Dataset()
 
-        app = self._get_test_app()
         env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
         form = response.forms['resource-edit']
         assert_in('schema', form.fields)
@@ -55,10 +53,9 @@ class TestResourceSchemaForm(FunctionalTestBase):
         assert_equals(form.fields['schema_json'][0].tag, 'textarea')
         assert_equals(form.fields['schema_url'][0].tag, 'input')
 
-    def test_resource_form_create(self):
+    def test_resource_form_create(self, app):
         dataset = Dataset()
 
-        app = self._get_test_app()
         env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
         form = response.forms['resource-edit']
 
@@ -79,10 +76,9 @@ class TestResourceSchemaForm(FunctionalTestBase):
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
-    def test_resource_form_create_json(self):
+    def test_resource_form_create_json(self, app):
         dataset = Dataset()
 
-        app = self._get_test_app()
         env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
         form = response.forms['resource-edit']
 
@@ -104,10 +100,9 @@ class TestResourceSchemaForm(FunctionalTestBase):
         assert_equals(dataset['resources'][0]['schema'], value)
 
     @mock_uploads
-    def test_resource_form_create_upload(self, mock_open):
+    def test_resource_form_create_upload(self, mock_open, app):
         dataset = Dataset()
 
-        app = self._get_test_app()
         env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
         form = response.forms['resource-edit']
 
@@ -129,10 +124,9 @@ class TestResourceSchemaForm(FunctionalTestBase):
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
-    def test_resource_form_create_url(self):
+    def test_resource_form_create_url(self, app):
         dataset = Dataset()
 
-        app = self._get_test_app()
         env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
         form = response.forms['resource-edit']
 
@@ -147,7 +141,7 @@ class TestResourceSchemaForm(FunctionalTestBase):
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
-    def test_resource_form_update(self):
+    def test_resource_form_update(self, app):
         value = {
             'fields': [
                 {'name': 'code'},
@@ -161,7 +155,6 @@ class TestResourceSchemaForm(FunctionalTestBase):
             }]
         )
 
-        app = self._get_test_app()
         env, response = _get_resource_update_page_as_sysadmin(
             app, dataset['id'], dataset['resources'][0]['id'])
         form = response.forms['resource-edit']
@@ -190,7 +183,7 @@ class TestResourceSchemaForm(FunctionalTestBase):
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
-    def test_resource_form_update_json(self):
+    def test_resource_form_update_json(self, app):
         value = {
             'fields': [
                 {'name': 'code'},
@@ -204,7 +197,6 @@ class TestResourceSchemaForm(FunctionalTestBase):
             }]
         )
 
-        app = self._get_test_app()
         env, response = _get_resource_update_page_as_sysadmin(
             app, dataset['id'], dataset['resources'][0]['id'])
         form = response.forms['resource-edit']
@@ -304,13 +296,9 @@ class TestResourceSchemaForm(FunctionalTestBase):
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
-
-class TestResourceValidationOptionsForm(FunctionalTestBase):
-
-    def setup(self):
-        reset_db()
-        if not tables_exist():
-            create_tables()
+@pytest.mark.usefixtures(u'initdb')
+@pytest.mark.usefixtures(u'clean_db')
+class TestResourceValidationOptionsForm(object):
 
     def test_resource_form_includes_json_fields(self):
         dataset = Dataset()
@@ -385,8 +373,9 @@ class TestResourceValidationOptionsForm(FunctionalTestBase):
 
         assert_equals(dataset['resources'][0]['validation_options'], value)
 
-
-class TestResourceValidationOnCreateForm(FunctionalTestBase):
+@pytest.mark.usefixtures(u'initdb')
+@pytest.mark.usefixtures(u'clean_db')
+class TestResourceValidationOnCreateForm(object):
 
     @classmethod
     def _apply_config_changes(cls, cfg):
@@ -439,8 +428,9 @@ class TestResourceValidationOnCreateForm(FunctionalTestBase):
         assert_in('missing-value', response.body)
         assert_in('Row 2 has a missing value in column 4', response.body)
 
-
-class TestResourceValidationOnUpdateForm(FunctionalTestBase):
+@pytest.mark.usefixtures(u'initdb')
+@pytest.mark.usefixtures(u'clean_db')
+class TestResourceValidationOnUpdateForm(object):
 
     @classmethod
     def _apply_config_changes(cls, cfg):
@@ -505,8 +495,9 @@ class TestResourceValidationOnUpdateForm(FunctionalTestBase):
         assert_in('missing-value', response.body)
         assert_in('Row 2 has a missing value in column 4', response.body)
 
-
-class TestResourceValidationFieldsPersisted(FunctionalTestBase):
+@pytest.mark.usefixtures(u'initdb')
+@pytest.mark.usefixtures(u'clean_db')
+class TestResourceValidationFieldsPersisted(object):
 
     @classmethod
     def _apply_config_changes(cls, cfg):
