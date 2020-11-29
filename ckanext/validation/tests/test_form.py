@@ -9,7 +9,7 @@ import ckanext.validation.model as vmodel
 
 from nose.tools import assert_in, assert_equals
 
-from ckan.tests.factories import Sysadmin, Dataset
+from ckan.tests.factories import Sysadmin, Dataset, Resource
 from ckan.tests.helpers import call_action, reset_db
 from ckan.lib.helpers import url_for
 
@@ -17,6 +17,8 @@ from ckanext.validation.model import create_tables, tables_exist
 from ckanext.validation.tests.helpers import (
     VALID_CSV, INVALID_CSV, mock_uploads
 )
+
+from bs4 import BeautifulSoup
 
 PLUGIN_CONTROLLER = 'ckanext.validation.controller:ValidationController'
 
@@ -52,10 +54,14 @@ def _get_resource_update_page_as_sysadmin(app, id, resource_id):
 @pytest.mark.usefixtures(u'with_plugins')
 class TestResourceSchemaForm(object):
 
+
     def test_resource_form_includes_json_fields(self, app):
         dataset = Dataset()
 
         env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
+
+        html = BeautifulSoup(response.body)
+
         form = response.forms['resource-edit']
         assert_in('schema', form.fields)
         assert_equals(form.fields['schema'][0].tag, 'input')
@@ -94,9 +100,8 @@ class TestResourceSchemaForm(object):
 
     def test_resource_form_create_json(self, app):
         dataset = Dataset()
-
-        env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
-        form = response.forms['resource-edit']
+        user = Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
 
         value = {
             'fields': [
@@ -106,21 +111,27 @@ class TestResourceSchemaForm(object):
         }
         json_value = json.dumps(value)
 
-        form['url'] = 'https://example.com/data.csv'
-        form['schema_json'] = json_value
-
-        submit_and_follow(app, form, env, 'save')
+        app.post(
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
+            data={
+                "url": "https://example.com/data.csv",
+                "schema_json": json_value,
+                "save": "go-dataset-complete",
+                "id": ""
+            }
+        )
 
         dataset = call_action('package_show', id=dataset['id'])
 
-        assert_equals(dataset['resources'][0]['schema'], value)
+        assert_equals(json.loads(dataset['resources'][0]['schema']), value)
 
-    @mock_uploads
-    def test_resource_form_create_upload(self, mock_open, app):
+    def test_resource_form_create_upload(self, app):
         dataset = Dataset()
-
-        env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
-        form = response.forms['resource-edit']
+        user = Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
 
         value = {
             'fields': [
@@ -131,10 +142,20 @@ class TestResourceSchemaForm(object):
         json_value = json.dumps(value)
 
         upload = ('schema_upload', 'schema.json', json_value)
-        form['url'] = 'https://example.com/data.csv'
 
-        webtest_submit(
-                form, 'save', upload_files=[upload], extra_environ=env)
+        app.post(
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
+            data={
+                "url": "https://example.com/data.csv",
+                "schema_json": json_value,
+                "save": "go-dataset-complete",
+                "upload_files": [upload],
+                "id": ""
+            }
+        )
 
         dataset = call_action('package_show', id=dataset['id'])
 
@@ -142,44 +163,42 @@ class TestResourceSchemaForm(object):
 
     def test_resource_form_create_url(self, app):
         dataset = Dataset()
-
-        env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
-        form = response.forms['resource-edit']
+        user = Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
 
         value = 'https://example.com/schemas.json'
 
-        form['url'] = 'https://example.com/data.csv'
-        form['schema_json'] = value
-
-        submit_and_follow(app, form, env, 'save')
+        app.post(
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
+            data={
+                "url": "https://example.com/data.csv",
+                "schema_json": value,
+                "save": "go-dataset-complete",
+                "id": ""
+            }
+        )
 
         dataset = call_action('package_show', id=dataset['id'])
 
         assert_equals(dataset['resources'][0]['schema'], value)
 
     def test_resource_form_update(self, app):
+        user = Sysadmin()
         value = {
             'fields': [
                 {'name': 'code'},
                 {'name': 'department'}
             ]
         }
-        dataset = Dataset(
-            resources=[{
-                'url': 'https://example.com/data.csv',
-                'schema': value
-            }]
+        dataset = Dataset()
+        resource = Resource(
+            package_id=dataset['id'],
+            url='https://example.com/data.csv',
+            schema=value
         )
-
-        env, response = _get_resource_update_page_as_sysadmin(
-            app, dataset['id'], dataset['resources'][0]['id'])
-        form = response.forms['resource-edit']
-
-        assert_equals(
-            form['schema'].value, json.dumps(value, indent=None))
-
-        # Clear current value
-        form['schema_json'] = ''
 
         value = {
             'fields': [
@@ -189,11 +208,12 @@ class TestResourceSchemaForm(object):
             ]
         }
 
-        json_value = json.dumps(value)
-
-        form['schema'] = json_value
-
-        submit_and_follow(app, form, env, 'save')
+        call_action(
+            "resource_patch",
+            id=resource["id"],
+            name="somethingnew",
+            schema=value
+        )
 
         dataset = call_action('package_show', id=dataset['id'])
 
