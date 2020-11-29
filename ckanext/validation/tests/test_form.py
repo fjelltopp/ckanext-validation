@@ -186,7 +186,6 @@ class TestResourceSchemaForm(object):
         assert_equals(dataset['resources'][0]['schema'], value)
 
     def test_resource_form_update(self, app):
-        user = Sysadmin()
         value = {
             'fields': [
                 {'name': 'code'},
@@ -201,10 +200,10 @@ class TestResourceSchemaForm(object):
         )
 
         value = {
-            'fields': [
-                {'name': 'code'},
-                {'name': 'department'},
-                {'name': 'date'}
+            "fields": [
+                {"name": "code"},
+                {"name": "department"},
+                {"name": "date"}
             ]
         }
 
