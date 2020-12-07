@@ -337,11 +337,10 @@ class TestResourceValidationOptionsForm(object):
         assert_equals(form.fields['validation_options'][0].tag, 'textarea')
 
     def test_resource_form_create(self, app):
-        dataset = Dataset()
 
-        app = self._get_test_app()
-        env, response = _get_resource_new_page_as_sysadmin(app, dataset['id'])
-        form = response.forms['resource-edit']
+        dataset = Dataset()
+        user = Sysadmin()
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
 
         value = {
             'delimiter': ';',
@@ -350,10 +349,18 @@ class TestResourceValidationOptionsForm(object):
         }
         json_value = json.dumps(value)
 
-        form['url'] = 'https://example.com/data.csv'
-        form['validation_options'] = json_value
-
-        submit_and_follow(app, form, env, 'save')
+        app.post(
+            url_for(
+                "{}_resource.new".format(dataset["type"]), id=dataset["id"]
+            ),
+            extra_environ=env,
+            data={
+                "url": "https://example.com/data.csv",
+                "validation_options": json_value,
+                "save": "go-dataset-complete",
+                "id": ""
+            }
+        )
 
         dataset = call_action('package_show', id=dataset['id'])
 
