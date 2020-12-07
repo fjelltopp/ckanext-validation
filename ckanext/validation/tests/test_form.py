@@ -261,26 +261,21 @@ class TestResourceSchemaForm(object):
                 {'name': 'department'}
             ]
         }
-        dataset = Dataset(
-            resources=[{
-                'url': 'https://example.com/data.csv',
-                'schema': value
-            }]
+        dataset = Dataset()
+        resource = Resource(
+            package_id=dataset['id'],
+            url='https://example.com/data.csv',
+            schema=value
         )
-
-        app = self._get_test_app()
-        env, response = _get_resource_update_page_as_sysadmin(
-            app, dataset['id'], dataset['resources'][0]['id'])
-        form = response.forms['resource-edit']
-
-        assert_equals(
-            form['schema_json'].value, json.dumps(value, indent=2))
 
         value = 'https://example.com/schema.json'
 
-        form['schema_url'] = value
-
-        submit_and_follow(app, form, env, 'save')
+        call_action(
+            "resource_update",
+            id=resource["id"],
+            name="somethingnew",
+            schema_url=value
+        )
 
         dataset = call_action('package_show', id=dataset['id'])
 
