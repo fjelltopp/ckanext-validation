@@ -3,7 +3,9 @@
 [![Build Status](https://travis-ci.org/frictionlessdata/ckanext-validation.svg?branch=master)](https://travis-ci.org/frictionlessdata/ckanext-validation)
 [![Coverage Status](https://coveralls.io/repos/github/frictionlessdata/ckanext-validation/badge.svg?branch=master)](https://coveralls.io/github/frictionlessdata/ckanext-validation?branch=master)
 
-Data description and validation for CKAN with [Frictionless Data](https://frictionlessdata.io) tools.
+Fork of CKAN data validation plugin for CKAN by [Frictionless Data](https://frictionlessdata.io).
+
+**A large part of tests are failing for CKAN 2.9 but are skipped**
 
 
 ## Table of Contents
@@ -643,7 +645,6 @@ Check the command help for more details:
 To run the tests, do:
 
     nosetests --nologcapture --with-pylons=test.ini
-
 
 ## Copying and License
 
