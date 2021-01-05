@@ -81,6 +81,7 @@ class BaseTestInterfaces(object):
         for plugin in p.PluginImplementations(IDataValidation):
             return plugin.reset_counter()
 
+
 @pytest.mark.usefixtures(u'initdb')
 @pytest.mark.usefixtures(u'clean_db')
 @pytest.mark.ckan_config(u'ckan.plugins', u'validation')
