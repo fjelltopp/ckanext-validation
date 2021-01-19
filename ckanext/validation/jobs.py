@@ -1,5 +1,5 @@
 # encoding: utf-8
-import cStringIO
+import io
 import pandas
 import logging
 import datetime
@@ -400,7 +400,7 @@ def _correct_transposition(report):
 
 def _excel_string_io_wrapper(df):
     df = df.iloc[1:]  # Remove headers
-    out = cStringIO.StringIO()
+    out = io.StringIO()
     df.to_excel(out, columns=None, index=None)
     out.seek(0)
     return out
