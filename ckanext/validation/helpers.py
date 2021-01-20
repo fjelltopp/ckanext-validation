@@ -6,7 +6,7 @@ from ckantoolkit import url_for, _, config, asbool, literal, get_action
 from ckanext.scheming.helpers import scheming_get_dataset_schema
 import logging
 import requests
-from custom_checks import get_spec_override
+from ckanext.validation.custom_checks import get_spec_override
 
 log = logging.getLogger(__name__)
 
