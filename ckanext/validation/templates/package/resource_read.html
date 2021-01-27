@@ -5,7 +5,7 @@
   {{ h.get_validation_badge(res)|safe }}
   </h1>
 
-  {% resource 'ckanext-validation/main' %}
+  {% asset 'ckanext-validation/main_css' %}
 {% endblock %}
 {% block resource_read_url %}
   <p class="text-muted break-word">{{ _('Resource ID:') }} <span style="color: #e31837">{{ res.id }}</span></p>

@@ -77,7 +77,7 @@ to create the database tables:
 
         t.add_template_directory(config_, u'templates')
         t.add_public_directory(config_, u'public')
-        t.add_resource(u'fanstatic', 'ckanext-validation')
+        t.add_resource(u'assets', 'ckanext-validation')
 
     # IRoutes
 

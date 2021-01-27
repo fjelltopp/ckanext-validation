@@ -60,7 +60,7 @@
     {% set existing_value = h.scheming_display_json_value(value, indent=None) if is_json else value %}
     <input type="hidden" id="field-schema" name="schema" value="{{ existing_value }}" />
 
-    {% resource 'ckanext-validation/resource-schema-form' %}
+    {% asset 'ckanext-validation/resource_schema_form_js' %}
 
   </div>
 
