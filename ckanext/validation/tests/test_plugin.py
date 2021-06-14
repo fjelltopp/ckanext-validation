@@ -10,17 +10,6 @@ from ckan.tests.helpers import change_config
 from ckanext.validation.model import create_tables, tables_exist
 from ckanext.validation.jobs import run_validation_job
 
-import ckan.model as model
-import ckanext.validation.model as vmodel
-
-
-@pytest.fixture
-def initdb():
-    model.Session.remove()
-    model.Session.configure(bind=model.meta.engine)
-    if not vmodel.tables_exist():
-        vmodel.create_tables()
-
 
 class TestResourceControllerHooksUpdate(object):
 

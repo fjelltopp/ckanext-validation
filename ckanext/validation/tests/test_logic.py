@@ -9,7 +9,6 @@ import mock
 import pytest
 
 import ckan.model as model
-import ckanext.validation.model as vmodel
 
 from ckan.tests.helpers import (
     call_action, call_auth, change_config
@@ -26,14 +25,6 @@ from ckanext.validation.tests.helpers import (
 
 
 Session = model.Session
-
-
-@pytest.fixture
-def initdb():
-    model.Session.remove()
-    model.Session.configure(bind=model.meta.engine)
-    if not vmodel.tables_exist():
-        vmodel.create_tables()
 
 
 @pytest.mark.usefixtures(u'initdb')

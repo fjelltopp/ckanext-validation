@@ -1,5 +1,7 @@
 import pytest
 
+from ckanext.validation.model import tables_exist, create_tables
+
 
 @pytest.fixture(scope='session')
 def log():
@@ -28,3 +30,9 @@ def log():
                     result.append(pack_error(error, table_number))
         return result
     return fixture
+
+
+@pytest.fixture
+def initdb():
+    if not tables_exist():
+        create_tables()

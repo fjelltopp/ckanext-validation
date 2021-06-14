@@ -3,22 +3,11 @@ from nose.tools import assert_equals
 
 import pytest
 
-import ckan.model as model
-import ckanext.validation.model as vmodel
-
 from ckan import plugins as p
 from ckan.tests import helpers, factories
 
 from ckanext.validation.interfaces import IDataValidation
 from ckanext.validation.tests.helpers import VALID_REPORT
-
-
-@pytest.fixture
-def initdb():
-    model.Session.remove()
-    model.Session.configure(bind=model.meta.engine)
-    if not vmodel.tables_exist():
-        vmodel.create_tables()
 
 
 class TestPlugin(object):
