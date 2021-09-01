@@ -1,15 +1,22 @@
 .validation-badge{
     display: inline-block;
+    margin: 0 0 20px 0;
 }
+
 
 .resource-list .validation-badge{
     float: right;
-    margin-right: 150px;
-    margin-top: 5px;
+    margin: 0 150px 0 0;
+}
+
+@media (max-width: 991px) {
+    .resource-list .validation-badge{
+        margin: 0px;
+    }
 }
 
 .validation-badge p.badge-link{
     text-align: center;
-    margin-top: 5px;
+    margin: 5px 0 0 0 ;
     font-size: 14px;
 }
