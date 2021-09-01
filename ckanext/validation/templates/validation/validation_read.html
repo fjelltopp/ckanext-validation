@@ -19,13 +19,12 @@
         </div>
 
         <h1 class="page-heading">{{ h.resource_display_name(resource) | truncate(50) }}
-        {{ h.get_validation_badge(resource)|safe }}
         </h1>
-
         <div class="validation-details">
-            <div>{{ _('Validation timestamp') }}: {{ h.render_datetime(resource.validation_timestamp, with_hours=True) }}</div>
+            <div><b>{{_('Status')}}:</b> {{validation.status|capitalize}}</div>
+            <div><b>{{ _('Validation timestamp') }}:</b> {{ h.render_datetime(resource.validation_timestamp, with_hours=True) }}</div>
             {% if validation.report %}
-            <div>{{ _('Duration') }}: {{ validation.report.time }}s</div>
+            <div><b>{{ _('Duration') }}:</b> {{ validation.report.time }}s</div>
             {% endif %}
         </div>
 
