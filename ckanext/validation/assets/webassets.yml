@@ -37,6 +37,12 @@ report_js:
       preload:
         - base/main
 
+badge_js:
+    contents:
+      - js/validation-badge.js
+    extra:
+      preload:
+        - base/main
 
 report_css:
     output: validation/%(version)s_report.css
