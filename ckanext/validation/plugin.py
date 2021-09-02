@@ -222,6 +222,14 @@ to create the database tables:
 
     def before_update(self, context, current_resource, updated_resource):
 
+        # Anything not part of the UI form submission is lost during resource_update
+        # validation_status and validation_timestamp are not submitted through the form
+        # We have to explicitly persist these keys through a resource_update
+        for key_to_persist in ['validation_status', 'validation_timestamp']:
+            if (key_to_persist in current_resource and
+                    key_to_persist not in updated_resource):
+                updated_resource[key_to_persist] = current_resource[key_to_persist]
+
         updated_resource = self._process_schema_fields(updated_resource)
 
         if not get_update_mode_from_config() == u'async':
@@ -253,7 +261,6 @@ to create the database tables:
 
     def after_update(self, context, data_dict):
         is_dataset = self._data_dict_is_dataset(data_dict)
-
         # Need to allow create as well because resource_create calls
         # package_update
         if (not get_update_mode_from_config() == u'async'
