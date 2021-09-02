@@ -34,6 +34,27 @@ class TestResourceControllerHooksUpdate(object):
 
     @change_config('ckanext.validation.run_on_create_async', False)
     @mock.patch('ckanext.validation.logic.enqueue_job')
+    def test_validation_keys_persisted(self, mock_enqueue):
+
+        original_resource = {
+            "format": "CSV",
+            "validation_timestamp": "2021-09-02T10:02:42.936205",
+            "validation_status": "failed"
+        }
+
+        dataset = factories.Dataset(resources=[original_resource])
+
+        dataset['resources'][0]['description'] = 'Some resource'
+        del dataset['resources'][0]['validation_timestamp']
+        del dataset['resources'][0]['validation_status']
+
+        updated_resource = call_action('resource_update', {}, **dataset['resources'][0])
+
+        assert updated_resource['validation_timestamp'] == original_resource['validation_timestamp']
+        assert updated_resource['validation_status'] == original_resource['validation_status']
+
+    @change_config('ckanext.validation.run_on_create_async', False)
+    @mock.patch('ckanext.validation.logic.enqueue_job')
     def test_validation_does_not_run_on_other_formats(self, mock_enqueue):
 
         resource = {'format': 'PDF'}
