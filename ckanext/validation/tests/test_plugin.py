@@ -11,6 +11,8 @@ from ckanext.validation.model import create_tables, tables_exist
 from ckanext.validation.jobs import run_validation_job
 
 
+@pytest.mark.ckan_config('ckan.plugins', 'validation')
+@pytest.mark.usefixtures('with_plugins')
 class TestResourceControllerHooksUpdate(object):
 
     def setup(self):
