@@ -32,13 +32,14 @@ def get_validation_badge(resource, in_listing=False):
     else:
         status = 'unknown'
 
-    tags = 'href=' + url_for(
+    tags = 'href="' + url_for(
         'validation_read',
         id=resource['package_id'],
         resource_id=resource['id']
-    )
+    ) + '"'
+
     if status == 'unknown':
-        tags = "data-module='validation-badge' data-module-resource='{}'".format(
+        tags += "data-module='validation-badge' data-module-resource='{}'".format(
             resource['id']
         )
 
@@ -49,7 +50,7 @@ def get_validation_badge(resource, in_listing=False):
     if status in ['success', 'unknown']:
         link_visibility = 'hidden'
 
-    return u'''
+    badge_html = u'''
 <a {tags} class="validation-badge">
     <img src="{badge_url}" alt="{alt}" title="{title}"/>
     <p class="small badge-link {link_visibility}">{badge_link}</p>
@@ -61,6 +62,8 @@ def get_validation_badge(resource, in_listing=False):
         link_visibility=link_visibility,
         badge_link=_('View Error Report')
     )
+
+    return badge_html
 
 
 def validation_extract_report_from_errors(errors):

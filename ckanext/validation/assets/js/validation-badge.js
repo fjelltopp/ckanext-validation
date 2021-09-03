@@ -2,12 +2,14 @@ this.ckan.module('validation-badge', function (jQuery) {
     return{
         options: {
           resource: null,
-          status: 'created'
+          status: 'created',
+          url: null
         },
         initialize: function () {
-          console.log(this);
           $.proxyAll(this, /_on/);
           this._poll();
+          this.options.url = $(this.el).attr('href');
+          $(this.el).removeAttr('href');
         },
         _poll: function() {
             var module = this;
@@ -25,6 +27,7 @@ this.ckan.module('validation-badge', function (jQuery) {
             this.options.status = data.result.status;
             if(this.options.status != 'running' && this.options.status != 'created'){
                 this._update_badge();
+                $(this.el).attr('href', this.options.url);
                 if( this.options.status == 'failure' || this.options.status == 'error' ){
                     $(this.el).find('.badge-link').removeClass('hidden');
                 }
