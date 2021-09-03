@@ -74,8 +74,8 @@ def enumerable_constraint(cells):
         # Add error
         if not valid:
             message_substitutions = {
-                'value': '"{}"'.format(value),
-                'constraint': '"{}"'.format('", "'.join(field.constraints['enum']))
+                'value': u'"{}"'.format(value),
+                'constraint': u'"{}"'.format('", "'.join(field.constraints['enum']))
             }
             error = Error(
                 'enumerable-constraint',
@@ -83,7 +83,6 @@ def enumerable_constraint(cells):
                 message_substitutions=message_substitutions
             )
             errors.append(error)
-
     return errors
 
 
