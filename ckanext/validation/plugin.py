@@ -221,9 +221,7 @@ to create the database tables:
             _run_async_validation(resource[u'id'])
 
     def before_update(self, context, current_resource, updated_resource):
-        # Anything not part of the UI form submission is lost during resource_update
-        # validation_status and validation_timestamp are not submitted through the form
-        # We have to explicitly persist these keys through a resource_update
+
         for key_to_persist in ['validation_status', 'validation_timestamp']:
             if (key_to_persist in current_resource and
                     key_to_persist not in updated_resource):

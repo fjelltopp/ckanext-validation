@@ -43,14 +43,13 @@ class TestResourceControllerHooksUpdate(object):
             "validation_timestamp": "2021-09-02T10:02:42.936205",
             "validation_status": "failed"
         }
-
         dataset = factories.Dataset(resources=[original_resource])
 
-        dataset['resources'][0]['description'] = 'Some resource'
-        del dataset['resources'][0]['validation_timestamp']
-        del dataset['resources'][0]['validation_status']
-
-        updated_resource = call_action('resource_update', {}, **dataset['resources'][0])
+        updated_resource = dataset['resources'][0]
+        updated_resource['description'] = 'Some resource'
+        del updated_resource['validation_timestamp']
+        del updated_resource['validation_status']
+        updated_resource = call_action('resource_update', {}, **updated_resource)
 
         assert updated_resource['validation_timestamp'] == original_resource['validation_timestamp']
         assert updated_resource['validation_status'] == original_resource['validation_status']
