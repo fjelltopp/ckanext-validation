@@ -11,6 +11,8 @@ from ckanext.validation.model import create_tables, tables_exist
 from ckanext.validation.jobs import run_validation_job
 
 
+@pytest.mark.ckan_config('ckan.plugins', 'validation')
+@pytest.mark.usefixtures('with_plugins')
 class TestResourceControllerHooksUpdate(object):
 
     def setup(self):
@@ -31,6 +33,26 @@ class TestResourceControllerHooksUpdate(object):
         call_action('resource_update', {}, **dataset['resources'][0])
 
         mock_enqueue.assert_not_called()
+
+    @change_config('ckanext.validation.run_on_create_async', False)
+    @mock.patch('ckanext.validation.logic.enqueue_job')
+    def test_validation_keys_persisted(self, mock_enqueue):
+
+        original_resource = {
+            "format": "CSV",
+            "validation_timestamp": "2021-09-02T10:02:42.936205",
+            "validation_status": "failed"
+        }
+        dataset = factories.Dataset(resources=[original_resource])
+
+        updated_resource = dataset['resources'][0]
+        updated_resource['description'] = 'Some resource'
+        del updated_resource['validation_timestamp']
+        del updated_resource['validation_status']
+        updated_resource = call_action('resource_update', {}, **updated_resource)
+
+        assert updated_resource['validation_timestamp'] == original_resource['validation_timestamp']
+        assert updated_resource['validation_status'] == original_resource['validation_status']
 
     @change_config('ckanext.validation.run_on_create_async', False)
     @mock.patch('ckanext.validation.logic.enqueue_job')
