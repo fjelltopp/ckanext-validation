@@ -3543,7 +3543,7 @@ var ErrorGroup = exports.ErrorGroup = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (ErrorGroup.__proto__ || Object.getPrototypeOf(ErrorGroup)).call(this, { errorGroup: errorGroup }));
 
     _this.state = {
-      showErrorDetails: false,
+      showErrorDetails: true,
       visibleRowsCount: 10
     };
     return _this;

@@ -46,6 +46,16 @@ def run_validation_job(resource):
         validation.status = 'error'
         validation.error = e.error_summary
         validation.report = {'valid': False}
+    except Exception as e:
+        error = t.ValidationError({
+            _('System Error'): [
+                _('A system error occured, please contact system administrator: ') + str(e)
+            ]
+        })
+        validation.status = 'error'
+        validation.error = error.error_summary
+        validation.report = {'valid': False}
+        log.exception(e)
     finally:
         _finish_validation_job(validation, resource)
 

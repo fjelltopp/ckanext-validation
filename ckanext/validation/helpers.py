@@ -1,7 +1,7 @@
 # encoding: utf-8
 import json
 import os
-from ckan.lib.helpers import url_for_static
+from ckan.lib.helpers import url_for_static, lang
 from ckantoolkit import url_for, _, config, asbool, literal, get_action
 from ckanext.scheming.helpers import scheming_get_dataset_schema
 import logging
@@ -35,19 +35,37 @@ def get_validation_badge(resource, in_listing=False):
     validation_url = url_for(
         'validation_read',
         id=resource['package_id'],
-        resource_id=resource['id'])
+        resource_id=resource['id']
+    )
+
+    tags = ""
+    if status == 'unknown':
+        tags += "data-module='validation-badge' data-module-resource='{}'".format(
+            resource['id']
+        )
 
     badge_url = url_for_static(
-        '/images/badges/data-{}-flat.svg'.format(status))
+        '/images/badges/{}-{}.gif'.format(lang(), status))
 
-    return u'''
-<a href="{validation_url}" class="validation-badge">
+    link_visibility = ""
+    if status in ['success', 'unknown']:
+        link_visibility = 'hidden'
+
+    badge_html = u'''
+<a href="{validation_url}" {tags} class="validation-badge">
     <img src="{badge_url}" alt="{alt}" title="{title}"/>
+    <p class="small badge-link {link_visibility}">{badge_link}</p>
 </a>'''.format(
         validation_url=validation_url,
+        tags=tags,
         badge_url=badge_url,
         alt=messages[status],
-        title=resource.get('validation_timestamp', ''))
+        title=resource.get('validation_timestamp', ''),
+        link_visibility=link_visibility,
+        badge_link=_('View Error Report')
+    )
+
+    return badge_html
 
 
 def validation_extract_report_from_errors(errors):
