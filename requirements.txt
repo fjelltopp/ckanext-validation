@@ -3,3 +3,4 @@ goodtables==2.2.1
 pandas==0.24.2
 pyshp==2.1.0
 pyrsistent==0.16.0
+jsonschema==3.2.0
