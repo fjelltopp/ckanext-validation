@@ -310,8 +310,6 @@ def resource_validation_run_batch(context, data_dict):
                     if (not resource.get(u'format', u'').lower()
                             in settings.SUPPORTED_FORMATS):
                         continue
-                    elif not resource.get(u'schema'):
-                        continue
 
                     try:
                         t.get_action(u'resource_validation_run')(
