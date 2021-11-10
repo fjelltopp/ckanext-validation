@@ -212,5 +212,4 @@ def _files_from_directory(path, extension='.json'):
 
 def validation_get_goodtables_spec():
     spec_override = get_spec_override()
-    log.warning("Spec Override: {}".format(spec_override))
     return json.dumps(spec_override, sort_keys=True)
