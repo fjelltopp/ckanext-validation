@@ -83,16 +83,16 @@ def _validate(resource, validation):
     if resource.get(u'url_type') == u'upload':
         if core.plugin_loaded('blob_storage'):
             app_context = _get_auto_flask_context()
-            if app_context:
-                with app_context:
+            try:
+                if app_context:
+                    app_context.push()
                     g.user = t.get_action('get_site_user')({'ignore_auth': True})['name']
-                    source = toolkit.get_action('get_resource_download_spec')(
-                        {'ignore_auth': True}, {'id': resource['id']}
-                    ).get('href')
-            else:
                 source = toolkit.get_action('get_resource_download_spec')(
                     {'ignore_auth': True}, {'id': resource['id']}
                 ).get('href')
+            finally:
+                if app_context:
+                    app_context.pop()
         else:
             upload = uploader.get_resource_uploader(resource)
             if isinstance(upload, uploader.ResourceUpload):
