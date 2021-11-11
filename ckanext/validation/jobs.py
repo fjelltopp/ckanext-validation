@@ -12,7 +12,7 @@ from collections import OrderedDict
 from six import string_types
 from sqlalchemy.orm.exc import NoResultFound
 from goodtables import validate
-from ckan.common import _
+from ckan.common import _, g
 from ckan.model import Session
 import ckan.lib.uploader as uploader
 import ckantoolkit as t
@@ -20,7 +20,7 @@ from ckan.plugins import toolkit, core
 from ckanext.validation.helpers import validation_load_json_schema
 from ckanext.validation.model import Validation
 from ckanext.validation.custom_checks import setup_custom_goodtables
-
+from ckan.lib.helpers import _get_auto_flask_context
 log = logging.getLogger(__name__)
 
 
@@ -82,10 +82,17 @@ def _validate(resource, validation):
     source = None
     if resource.get(u'url_type') == u'upload':
         if core.plugin_loaded('blob_storage'):
-            source = toolkit.get_action('get_resource_download_spec')(
-                {'ignore_auth': True},
-                {'id': resource['id']}
-            ).get('href')
+            app_context = _get_auto_flask_context()
+            if app_context:
+                with app_context:
+                    g.user = t.get_action('get_site_user')({'ignore_auth': True})['name']
+                    source = toolkit.get_action('get_resource_download_spec')(
+                        {'ignore_auth': True}, {'id': resource['id']}
+                    ).get('href')
+            else:
+                source = toolkit.get_action('get_resource_download_spec')(
+                    {'ignore_auth': True}, {'id': resource['id']}
+                ).get('href')
         else:
             upload = uploader.get_resource_uploader(resource)
             if isinstance(upload, uploader.ResourceUpload):
