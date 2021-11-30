@@ -44,7 +44,7 @@ class CustomConstraint(object):
 
         except Exception:
             row_number = cells[0]['row-number']
-            message = 'Custom constraint "{constraint}" fails for row {row_number}'
+            message = u'Custom constraint "{constraint}" fails for row {row_number}'
             message_substitutions = {
                 'constraint': self.__constraint,
             }
@@ -74,8 +74,8 @@ def enumerable_constraint(cells):
         # Add error
         if not valid:
             message_substitutions = {
-                'value': '"{}"'.format(value),
-                'constraint': '"{}"'.format('", "'.join(field.constraints['enum']))
+                'value': u'"{}"'.format(value),
+                'constraint': u'"{}"'.format('", "'.join(field.constraints['enum']))
             }
             error = Error(
                 'enumerable-constraint',
