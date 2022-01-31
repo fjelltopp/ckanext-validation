@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-validation 0.0.4\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-01-11 08:31+0000\n"
+"POT-Creation-Date: 2022-01-11 08:51+0000\n"
 "PO-Revision-Date: 2022-01-11 08:31+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pt_PT\n"
@@ -21,29 +21,30 @@ msgstr ""
 
 #: ckanext/validation/controller.py:36
 msgid "Unauthorized to read this validation report"
-msgstr ""
+msgstr "Não autorizado a ler este relatório de validação"
 
 #: ckanext/validation/controller.py:39
 msgid "No validation report exists for this resource"
-msgstr ""
+msgstr "Não existe um relatório de validação para este recurso"
 
 #: ckanext/validation/custom_checks.py:249
 msgid "No foreign-key reference found. Does the referenced resource exist?"
-msgstr ""
+msgstr "Não foi encontrada nenhuma referência de chave estrangeira. O recurso referenciado existe?"
 
 #: ckanext/validation/custom_checks.py:263
 msgid ""
 "Area ID in column {column_number} and row {row_number} is not found in "
 "the referenced geographic hierachy (resource id: {resource_id})"
 msgstr ""
+"O ID da área na coluna {column_number} e linha {row_number} não é encontrado na hierarquia geográfica referenciada (ID do recurso: (resource id: {resource_id})"
 
 #: ckanext/validation/custom_checks.py:375
 msgid "IO Error"
-msgstr ""
+msgstr "Erro IO"
 
 #: ckanext/validation/custom_checks.py:379
 msgid "The data source returned an IO Error of type {error_type}"
-msgstr ""
+msgstr "A fonte de dados retornou um erro IO do tipo {error_type}"
 
 #: ckanext/validation/custom_checks.py:380
 msgid ""
@@ -52,14 +53,18 @@ msgid ""
 " How it could be resolved:\n"
 " - Fix path if it's not correct."
 msgstr ""
+"Erro de leitura de dados devido a erro IO.\n"
+"\n"
+"Método de resolução:\n"
+"- Corrigir o caminho se não estiver correto."
 
 #: ckanext/validation/custom_checks.py:384
 msgid "HTTP Error"
-msgstr ""
+msgstr "Erro HTTP"
 
 #: ckanext/validation/custom_checks.py:388
 msgid "The data source returned an HTTP error with a status code of {status_code}"
-msgstr ""
+msgstr "A fonte de dados retornou um erro HTTP com um código de status de {status_code}"
 
 #: ckanext/validation/custom_checks.py:389
 msgid ""
@@ -68,16 +73,21 @@ msgid ""
 " How it could be resolved:\n"
 " - Fix url link if it's not correct."
 msgstr ""
+"Erro de leitura de dados por causa de erro HTTP.\n"
+"\n"
+"Método de resolução:\n"
+"- Corrija o link url se não estiver correto."
 
 #: ckanext/validation/custom_checks.py:393
 msgid "Source Error"
-msgstr ""
+msgstr "Erro de fonte"
 
 #: ckanext/validation/custom_checks.py:397
 msgid ""
 "The data source has not supported or has inconsistent contents; no "
 "tabular data can be extracted"
 msgstr ""
+"A fonte de dados não foi suportada ou tem conteúdos inconsistentes; nenhum dado tabular pode ser extraído"
 
 #: ckanext/validation/custom_checks.py:399
 msgid ""
@@ -87,14 +97,19 @@ msgid ""
 " - Fix data contents (e.g. change JSON data to array or arrays/objects).\n"
 " - Set correct source settings in {validator}."
 msgstr ""
+"Erro de leitura de dados devido a conteúdo não suportado ou inconsistente.\n"
+"\n"
+"Método de resolução:\n"
+"- Corrigir o conteúdo dos dados (por exemplo, alterar os dados JSON para array ou arrays/objects). \n"
+"- Introduza as definições de fonte corretas em {validator}."
 
 #: ckanext/validation/custom_checks.py:405
 msgid "Scheme Error"
-msgstr ""
+msgstr "Erro de Esquema"
 
 #: ckanext/validation/custom_checks.py:409
 msgid "The data source is in an unknown scheme; no tabular data can be extracted"
-msgstr ""
+msgstr "A fonte de dados está num esquema desconhecido; não é possível extrair dados tabulares"
 
 #: ckanext/validation/custom_checks.py:410
 msgid ""
@@ -104,14 +119,19 @@ msgid ""
 " - Fix data scheme (e.g. change scheme from `ftp` to `http`).\n"
 " - Set correct scheme in {validator}."
 msgstr ""
+"Erro de leitura de dados devido a esquema incorreto.\n"
+"\n"
+"Método de resolução:\n"
+" - Corrigir esquema de dados (por exemplo, mudar esquema de `ftp` para `http`).\n"
+" - Definir o esquema correto em {validator}."
 
 #: ckanext/validation/custom_checks.py:415
 msgid "Format Error"
-msgstr ""
+msgstr "Erro de Formato"
 
 #: ckanext/validation/custom_checks.py:419
 msgid "The data source is in an unknown format; no tabular data can be extracted"
-msgstr ""
+msgstr "A fonte de dados está num formato desconhecido; não é possível extrair dados tabulares"
 
 #: ckanext/validation/custom_checks.py:420
 msgid ""
@@ -121,14 +141,19 @@ msgid ""
 " - Fix data format (e.g. change file extension from `txt` to `csv`).\n"
 " - Set correct format in {validator}."
 msgstr ""
+"Erro de leitura de dados devido ao formato incorreto.\n"
+"\n"
+"Método de resolução:\n"
+"- Corrigir o formato dos dados (por exemplo, alterar a extensão do ficheiro de `txt` para `csv`).\n"
+"- Definir o formato correto em {validator}."
 
 #: ckanext/validation/custom_checks.py:425
 msgid "Encoding Error"
-msgstr ""
+msgstr "Erro de Codificação"
 
 #: ckanext/validation/custom_checks.py:429
 msgid "The data source could not be successfully decoded with {encoding} encoding"
-msgstr ""
+msgstr "A fonte de dados não pôde ser decodificada com sucesso com a codificação {encoding}"
 
 #: ckanext/validation/custom_checks.py:430
 msgid ""
@@ -138,14 +163,19 @@ msgid ""
 " - Fix data source if it's broken.\n"
 " - Set correct encoding in {validator}."
 msgstr ""
+"Erro de leitura de dados devido a um problema de codificação.\n"
+"\n"
+"Método de resolução:\n"
+"- Corrigir a fonte de dados se estiver quebrada.\n"
+"- Definir a codificação correta em {validator}."
 
 #: ckanext/validation/custom_checks.py:434
 msgid "Blank Header"
-msgstr ""
+msgstr "Cabeçalho em branco"
 
 #: ckanext/validation/custom_checks.py:438
 msgid "Header in column {column_number} is blank"
-msgstr ""
+msgstr "O cabeçalho na coluna {column_number} está em branco"
 
 #: ckanext/validation/custom_checks.py:439
 msgid ""
@@ -158,16 +188,23 @@ msgid ""
 " - If this error should be ignored disable `blank-header` check in "
 "{validator}."
 msgstr ""
+"Falta um valor para uma coluna na linha do cabeçalho. Os nomes das colunas devem ser fornecidos.\n"
+"\n"
+"Método de resolução:\n"
+"- Adicionar o nome da coluna requerida à primeira linha da fonte de dados.\n"
+"- Se a primeira linha começar com, ou terminar com uma vírgula, remova-a.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `blank-header` em {validator}."
 
 #: ckanext/validation/custom_checks.py:446
 msgid "Duplicate Header"
-msgstr ""
+msgstr "Cabeçalho duplicado"
 
 #: ckanext/validation/custom_checks.py:450
 msgid ""
 "Header in column {column_number} is duplicated to header in column(s) "
 "{column_numbers}"
 msgstr ""
+"O cabeçalho na coluna {column_number} é duplicado para cabeçalho na(s) coluna(s) {column_numbers}"
 
 #: ckanext/validation/custom_checks.py:451
 msgid ""
@@ -180,14 +217,20 @@ msgid ""
 " - If this error should be ignored disable `duplicate-header` check in "
 "{validator}."
 msgstr ""
+"Duas colunas na linha de cabeçalho têm o mesmo valor. Os nomes das colunas devem ser únicos.\n"
+"\n"
+"Método de resolução:\n"
+"- Adicione o nome da coluna requerida à primeira linha dos dados\n"
+"- Se a primeira linha começar com, ou terminar com uma vírgula, remova-a.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação de `duplicate-header` em {validator}."
 
 #: ckanext/validation/custom_checks.py:458
 msgid "Blank Row"
-msgstr ""
+msgstr "Linha em branco"
 
 #: ckanext/validation/custom_checks.py:462
 msgid "Row {row_number} is completely blank"
-msgstr ""
+msgstr "A linha {row_number} está completamente em branco"
 
 #: ckanext/validation/custom_checks.py:463
 msgid ""
@@ -198,14 +241,19 @@ msgid ""
 " - If this error should be ignored disable `blank-row` check in "
 "{validator}."
 msgstr ""
+"Esta linha está vazia. Uma linha deve conter pelo menos um valor.\n"
+"\n"
+"Método de resolução:\n"
+"- Apagar a linha.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `blank-row` em {validator}."
 
 #: ckanext/validation/custom_checks.py:468
 msgid "Duplicate Row"
-msgstr ""
+msgstr "Linha duplicada"
 
 #: ckanext/validation/custom_checks.py:472
 msgid "Row {row_number} is duplicated to row(s) {row_numbers}"
-msgstr ""
+msgstr "A linha {row_number} é duplicada para linha(s) {row_numbers}"
 
 #: ckanext/validation/custom_checks.py:473
 msgid ""
@@ -217,14 +265,20 @@ msgid ""
 " - If this error should be ignored disable `duplicate-row` check in "
 "{validator}."
 msgstr ""
+"Os mesmos dados foram vistos exatamente noutra linha.\n"
+"\n"
+"Método de resolução:\n"
+"- se alguns dos dados estiverem incorretos, corrija-os.\n"
+" - Se a linha inteira for uma duplicata incorreta, remova-a.\n"
+" - Se este erro tiver de ser ignorado, desativar a verificação de `duplicate-row` em {validator}."
 
 #: ckanext/validation/custom_checks.py:480
 msgid "Extra Value"
-msgstr ""
+msgstr "Valor Extra"
 
 #: ckanext/validation/custom_checks.py:484
 msgid "Row {row_number} has an extra value in column {column_number}"
-msgstr ""
+msgstr "A linha {row_number} tem um valor extra na coluna {column_number}"
 
 #: ckanext/validation/custom_checks.py:485
 msgid ""
@@ -237,14 +291,19 @@ msgid ""
 " - If this error should be ignored disable `extra-value` check in "
 "{validator}."
 msgstr ""
+"Esta linha tem mais valores em comparação com a linha do cabeçalho (a primeira linha na fonte de dados). O conceito-chave é que todas as linhas nos dados tabulares devem ter o mesmo número de colunas.\n"
+"\n"
+"Método de resolução:\n"
+"- A verificação dos dados tem uma vírgula extra entre os valores desta linha.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `extra-value` em {validator}.\n"
 
 #: ckanext/validation/custom_checks.py:493
 msgid "Missing Value"
-msgstr ""
+msgstr "Valor requerido"
 
 #: ckanext/validation/custom_checks.py:497
 msgid "Row {row_number} has a missing value in column {column_number}"
-msgstr ""
+msgstr "A linha {row_number} tem um valor ausente na coluna {column_number}"
 
 #: ckanext/validation/custom_checks.py:498
 msgid ""
@@ -257,14 +316,19 @@ msgid ""
 " - If this error should be ignored disable `missing-value` check in "
 "{validator}."
 msgstr ""
+"Esta linha tem menos valores em comparação com a linha do cabeçalho (a primeira linha na fonte de dados). Um conceito-chave é que todas as linhas nos dados tabulares devem ter o mesmo número de colunas.\n"
+"\n"
+"Método de resolução:\n"
+"- verificar se nos dados não falta uma vírgula entre os valores desta linha.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação de `missing-value` em {validator}.\n"
 
 #: ckanext/validation/custom_checks.py:506
 msgid "Table Schema Error"
-msgstr ""
+msgstr "Erro do esquema da tabela"
 
 #: ckanext/validation/custom_checks.py:510
 msgid "Table Schema error: {error_message}"
-msgstr ""
+msgstr "Erro no esquema da tabela: {error_message}"
 
 #: ckanext/validation/custom_checks.py:511
 msgid ""
@@ -274,16 +338,22 @@ msgid ""
 " - Update schema descriptor to be a valid descriptor\n"
 " - If this error should be ignored disable schema checks in {validator}."
 msgstr ""
+"O esquema fornecido não é válido.\n"
+"\n"
+"Método de resolução:\n"
+"- Atualizar o descritor do esquema para que seja um descritor válido\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação do esquema no {validator}."
 
 #: ckanext/validation/custom_checks.py:516
 msgid "Non-Matching Header"
-msgstr ""
+msgstr "Cabeçalho sem correspondência"
 
 #: ckanext/validation/custom_checks.py:520
 msgid ""
 "Header in column {column_number} doesn't match field name {field_name} in"
 " the schema"
 msgstr ""
+"O cabeçalho na coluna {column_number} não corresponde ao nome do campo {field_name} no esquema"
 
 #: ckanext/validation/custom_checks.py:521
 msgid ""
@@ -295,14 +365,19 @@ msgid ""
 " - If this error should be ignored disable `non-matching-header` check in"
 " {validator}."
 msgstr ""
+"Um dos cabeçalhos da fonte de dados não corresponde ao nome do campo definido no esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Renomear o cabeçalho na fonte de dados ou no campo no esquema\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `non-matching-header` no {validator}."
 
 #: ckanext/validation/custom_checks.py:526
 msgid "Extra Header"
-msgstr ""
+msgstr "Cabeçalho Extra"
 
 #: ckanext/validation/custom_checks.py:530
 msgid "There is an extra header in column {column_number}"
-msgstr ""
+msgstr "Há um cabeçalho extra na coluna {column_number}"
 
 #: ckanext/validation/custom_checks.py:531
 msgid ""
@@ -315,14 +390,19 @@ msgid ""
 " - If this error should be ignored disable `extra-header` check in "
 "{validator}."
 msgstr ""
+"A primeira linha da fonte de dados contém cabeçalho que não existe no esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Remover a coluna extra da fonte de dados ou adicionar o campo ausente ao esquema\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `extra-header` em {validator}."
 
 #: ckanext/validation/custom_checks.py:537
 msgid "Missing Header"
-msgstr ""
+msgstr "Cabeçalho requerido"
 
 #: ckanext/validation/custom_checks.py:541
 msgid "There is a missing header in column {column_number}"
-msgstr ""
+msgstr "Há um cabeçalho ausente na coluna {column_number}"
 
 #: ckanext/validation/custom_checks.py:542
 msgid ""
@@ -335,16 +415,22 @@ msgid ""
 " - If this error should be ignored disable `missing-header` check in "
 "{validator}."
 msgstr ""
+"Com base no esquema, deve haver um cabeçalho ausente na primeira linha da fonte de dados.\n"
+"\n"
+"Método de resolução:\n"
+"- Adicionar a coluna requerida à fonte de dados ou remover o campo extra do esquema\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação de `missing-header` no {validator}."
 
 #: ckanext/validation/custom_checks.py:548
 msgid "Type or Format Error"
-msgstr ""
+msgstr "Erro de Tipo ou Formato"
 
 #: ckanext/validation/custom_checks.py:552
 msgid ""
 "The value {value} in row {row_number} and column {column_number} is not "
 "type {field_type} and format {field_format}"
 msgstr ""
+"O valor {value} na linha {row_number} e coluna {column_number} não é tipo {field_type} e formato {field_format}"
 
 #: ckanext/validation/custom_checks.py:554
 msgid ""
@@ -357,16 +443,23 @@ msgid ""
 "{validator}. In this case all schema checks for row values will be "
 "ignored."
 msgstr ""
+"O valor não corresponde ao tipo e formato do esquema para este campo.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualizar o valor.\n"
+"- Se este valor estiver correto, ajustar o tipo e/ou formato.\n"
+"- Para ignorar o erro, desativar a verificação `type-or-format-error` em {validator}. Neste caso, todas as verificações de esquema para valores de linha serão ignoradas."
 
 #: ckanext/validation/custom_checks.py:561
 msgid "Required Constraint"
-msgstr ""
+msgstr "Restrição requerida"
 
 #: ckanext/validation/custom_checks.py:565
 msgid ""
 "Column {column_number} is a required field, but row {row_number} has no "
 "value"
 msgstr ""
+"Coluna {column_number} é um campo obrigatório, mas a linha {row_number} não tem valor"
 
 #: ckanext/validation/custom_checks.py:566
 msgid ""
@@ -379,16 +472,23 @@ msgid ""
 " - If this error should be ignored disable `required-constraint` check in"
 " {validator}."
 msgstr ""
+"Este campo é um campo obrigatório, mas não contém nenhum valor.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova a restrição `required' do esquema.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `required-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:572
 msgid "Pattern Constraint"
-msgstr ""
+msgstr "Restrição de padrão"
 
 #: ckanext/validation/custom_checks.py:576
 msgid ""
 "The value {value} in row {row_number} and column {column_number} does not"
 " conform to the pattern constraint of {constraint}"
 msgstr ""
+"O valor {value} na linha {row_number} e coluna {column_number} não está em conformidade com a restrição de padrão de {constraint}"
 
 #: ckanext/validation/custom_checks.py:578
 msgid ""
@@ -401,16 +501,23 @@ msgid ""
 " - If this error should be ignored disable `pattern-constraint` check in "
 "{validator}."
 msgstr ""
+"Este valor de campo deve estar em conformidade com o padrão restrito.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualizar o valor.\n"
+"- Se o valor estiver correto, então remover ou refinar a restrição `padrão` no esquema.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `pattern-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:584
 msgid "Unique Constraint"
-msgstr ""
+msgstr "Restrição Única"
 
 #: ckanext/validation/custom_checks.py:588
 msgid ""
 "Rows {row_numbers} has unique constraint violation in column "
 "{column_number}"
 msgstr ""
+"As linhas {row_numbers} têm uma violação de restrição única na coluna {column_number}"
 
 #: ckanext/validation/custom_checks.py:589
 msgid ""
@@ -424,16 +531,23 @@ msgid ""
 " - If this error should be ignored disable `unique-constraint` check in "
 "{validator}."
 msgstr ""
+"Este campo é um campo único mas contém um valor que foi utilizado noutra linha.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então os valores nesta coluna não são únicos. Remover a restrição `unique' do esquema.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `unique-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:597
 msgid "Invalid Value"
-msgstr ""
+msgstr "Valor Inválido"
 
 #: ckanext/validation/custom_checks.py:601
 msgid ""
 "The value {value} in row {row_number} and column {column_number} is not "
 "found in the list of valid values for this field: {constraint}"
 msgstr ""
+"O valor {value} na linha {row_number} e coluna {column_number} não se encontra na lista de valores válidos para este campo: {constraint}"
 
 #: ckanext/validation/custom_checks.py:603
 msgid ""
@@ -443,16 +557,20 @@ msgid ""
 "  Please update the value making sure it exactly matches one of the valid"
 " values in the specified list."
 msgstr ""
+"Este valor de campo deve ser igual a um dos valores de uma lista pré-especificada.\n"
+"\n"
+"Atualize o valor, certificando-se de que corresponde exactamente a um dos valores válidos da lista especificada."
 
 #: ckanext/validation/custom_checks.py:608
 msgid "Minimum Constraint"
-msgstr ""
+msgstr "Restrição Mínima"
 
 #: ckanext/validation/custom_checks.py:612
 msgid ""
 "The value {value} in row {row_number} and column {column_number} does not"
 " conform to the minimum constraint of {constraint}"
 msgstr ""
+"O valor {value} na linha {row_number} e coluna {column_number} não está em conformidade com a restrição mínima de {constraint}"
 
 #: ckanext/validation/custom_checks.py:614
 msgid ""
@@ -465,16 +583,23 @@ msgid ""
 " - If this error should be ignored disable `minimum-constraint` check in "
 "{validator}."
 msgstr ""
+"Este valor de campo deve ser maior ou igual ao valor de restrição.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remover ou refinar a restrição `minimum' no esquema.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `minimum-constraint` em {validador}."
 
 #: ckanext/validation/custom_checks.py:620
 msgid "Maximum Constraint"
-msgstr ""
+msgstr "Restrição Máxima"
 
 #: ckanext/validation/custom_checks.py:624
 msgid ""
 "The value {value} in row {row_number} and column {column_number} does not"
 " conform to the maximum constraint of {constraint}"
 msgstr ""
+"O valor {value} na linha {row_number} e coluna {column_number} não está em conformidade com a restrição máxima de {constraint}"
 
 #: ckanext/validation/custom_checks.py:626
 msgid ""
@@ -487,16 +612,23 @@ msgid ""
 " - If this error should be ignored disable `maximum-constraint` check in "
 "{validator}."
 msgstr ""
+"Este valor de campo deve ser inferior ou igual ao valor de restrição.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova ou refine a restrição `maximum` no esquema.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `maximum-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:632
 msgid "Minimum Length Constraint"
-msgstr ""
+msgstr "Restrição de comprimento mínimo"
 
 #: ckanext/validation/custom_checks.py:636
 msgid ""
 "The value {value} in row {row_number} and column {column_number} does not"
 " conform to the minimum length constraint of {constraint}"
 msgstr ""
+"O valor {value} na linha {row_number} e coluna {column_number} não está em conformidade com a restrição de comprimento mínimo de {constraint}"
 
 #: ckanext/validation/custom_checks.py:638
 msgid ""
@@ -510,16 +642,23 @@ msgid ""
 " - If this error should be ignored disable `minimum-length-constraint` "
 "check in {validator}."
 msgstr ""
+"O comprimento deste valor de campo deve ser maior ou igual ao valor da restrição do esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova ou refine a restrição `minimumLength` no esquema.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `minimum-length-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:646
 msgid "Maximum Length Constraint"
-msgstr ""
+msgstr "Restrição de comprimento máximo"
 
 #: ckanext/validation/custom_checks.py:650
 msgid ""
 "The value {value} in row {row_number} and column {column_number} does not"
 " conform to the maximum length constraint of {constraint}"
 msgstr ""
+"O valor {value} na linha {row_number} e coluna {column_number} não está em conformidade com a restrição de comprimento máximo de {constraint}"
 
 #: ckanext/validation/custom_checks.py:653
 msgid ""
@@ -533,54 +672,62 @@ msgid ""
 " - If this error should be ignored disable `maximum-length-constraint` "
 "check in {validator}."
 msgstr ""
+"O comprimento deste valor de campo deve ser inferior ou igual ao valor da restrição do esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova ou refine a restrição `maximumLength` no esquema.\n"
+"- Se este erro tiver de ser ignorado, desativar a verificação `maximum-length-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:661
 msgid "Geometry Error"
-msgstr ""
+msgstr "Erro de geometria"
 
 #: ckanext/validation/custom_checks.py:665
 msgid "There is no geometry specified for row {row_number}."
-msgstr ""
+msgstr "Não há nenhuma geometria especificada para a linha {row_number}."
 
 #: ckanext/validation/custom_checks.py:666
 msgid "Every record in a geometry file, must include geometry co-ordinates."
-msgstr ""
+msgstr "Cada registo num ficheiro de geometria, deve incluir coordenadas geométricas."
 
 #: ckanext/validation/custom_checks.py:669
 msgid "Area ID Error"
-msgstr ""
+msgstr "Erro de identificação de área"
 
 #: ckanext/validation/custom_checks.py:673
 msgid ""
 "Value in column {column_number} and row {row_number} is not found in the "
 "referenced data table: {resource_id}"
 msgstr ""
+"O valor na coluna {column_number} e na linha {row_number} não é encontrado na tabela de dados referenciados: {resource_id}"
 
 #: ckanext/validation/custom_checks.py:676
 msgid ""
 "Area IDs must match those from the referenced location hierachy.  Please "
 "check the location hierachy."
 msgstr ""
+"As identificações de área devem corresponder às da hierarquia de localização referenciada. Verifique a hierarquia de localização."
 
 #: ckanext/validation/helpers.py:24
 msgid "Valid data"
-msgstr ""
+msgstr "Dados válidos"
 
 #: ckanext/validation/helpers.py:25
 msgid "Invalid data"
-msgstr ""
+msgstr "Dados inválidos"
 
 #: ckanext/validation/helpers.py:26
 msgid "Error during validation"
-msgstr ""
+msgstr "Erro durante a validação"
 
 #: ckanext/validation/helpers.py:27
 msgid "Data validation unknown"
-msgstr ""
+msgstr "Validação de dados desconhecida"
 
 #: ckanext/validation/helpers.py:65
 msgid "View Error Report"
-msgstr ""
+msgstr "Ver Relatório de Erros"
 
 #: ckanext/validation/helpers.py:80
 msgid ""
@@ -589,20 +736,21 @@ msgid ""
 "<a {params}>report</a> for details. Once you have resolved the issues,\n"
 "click the button below to replace the file."
 msgstr ""
+"Existem problemas de validação com este ficheiro, consulte o <a {params}>relatório</a> para mais detalhes. Depois de resolver os problemas, clique no botão abaixo para substituir o ficheiro."
 
 #: ckanext/validation/jobs.py:51
 msgid "System Error"
-msgstr ""
+msgstr "Erro de Sistema"
 
 #: ckanext/validation/jobs.py:52
 msgid "A system error occured, please contact system administrator: "
-msgstr ""
+msgstr "Ocorreu um erro de sistema, contacte o administrador do sistema:"
 
 #: ckanext/validation/jobs.py:164 ckanext/validation/jobs.py:271
 #: ckanext/validation/jobs.py:280 ckanext/validation/jobs.py:296
 #: ckanext/validation/jobs.py:323
 msgid "Format"
-msgstr ""
+msgstr "Formato"
 
 #: ckanext/validation/jobs.py:165
 msgid ""
@@ -610,163 +758,168 @@ msgid ""
 "input file and if necessary report a bug using the link in the page "
 "footer."
 msgstr ""
+"Erro inesperado durante o processamento da validação dos recursos. Por favor, verifique o seu ficheiro de entrada e, se necessário, relate um erro usando o link no rodapé da página."
 
 #: ckanext/validation/jobs.py:216
 msgid "No tables found"
-msgstr ""
+msgstr "Não foram encontradas tabelas"
 
 #: ckanext/validation/jobs.py:254
 msgid "Incorrect Extension"
-msgstr ""
+msgstr "Extensão incorreta"
 
 #: ckanext/validation/jobs.py:254
 msgid "Cannot validate the file. Please check the file extension is correct."
-msgstr ""
+msgstr "Não é possível validar o ficheiro. Por favor, verifique se a extensão do ficheiro está correta."
 
 #: ckanext/validation/jobs.py:272
 msgid ""
 "Could not decode your CSV file. Please, make sure your file is utf-8 "
 "encoded."
 msgstr ""
+"Não foi possível descodificar o seu ficheiro CSV. Por favor, verifique se o seu ficheiro está codificado em utf-8."
 
 #: ckanext/validation/jobs.py:281
 msgid ""
 "Could not read your CSV file. Are you sure your specified format {} is "
 "correct?"
 msgstr ""
+"Não foi possível ler o seu ficheiro CSV. Tem a certeza de que o seu formato especificado {} está correto?"
 
 #: ckanext/validation/jobs.py:297
 msgid ""
 "Could not read your Excel file. Are you sure your specified format {} is "
 "correct?"
 msgstr ""
+"Não foi possível ler o seu ficheiro Excel. Tem a certeza de que o seu formato especificado {} está certo?"
 
 #: ckanext/validation/jobs.py:305
 msgid "Multiple Worksheets"
-msgstr ""
+msgstr "Múltiplas fichas de trabalho"
 
 #: ckanext/validation/jobs.py:305
 msgid "Your Excel file must contain only one worksheet for validation."
-msgstr ""
+msgstr "O seu ficheiro Excel deve conter apenas uma ficha de trabalho para validação."
 
 #: ckanext/validation/jobs.py:323
 msgid ""
 "Resource format set to 'JSON', but an error occured whilst reading "
 "JSON.Are you sure this resource is a valid JSON file?"
 msgstr ""
+"O formato do recurso foi definido como 'JSON', mas ocorreu um erro durante a leitura do JSON. Tem a certeza de que este recurso é um ficheiro JSON válido?"
 
 #: ckanext/validation/jobs.py:339
 msgid "Unable to import JSON: "
-msgstr ""
+msgstr "Importação do JSON impossível:"
 
 #: ckanext/validation/jobs.py:363 ckanext/validation/jobs.py:369
 #: ckanext/validation/jobs.py:401
 msgid "SHP File"
-msgstr ""
+msgstr "Ficheiro SHP"
 
 #: ckanext/validation/jobs.py:363
 msgid "Could not unzip file: "
-msgstr ""
+msgstr "Não foi possível abrir o ficheiro:"
 
 #: ckanext/validation/jobs.py:369
 msgid "Zipped archive must contain exactly one .shp file."
-msgstr ""
+msgstr "O arquivo zipado deve conter exatamente um ficheiro .shp."
 
 #: ckanext/validation/jobs.py:401
 msgid "Not a valid shp file: "
-msgstr ""
+msgstr "Não é um ficheiro shp válido:"
 
 #: ckanext/validation/jobs.py:474
 msgid "Required Foreign Key Configuration"
-msgstr ""
+msgstr "Configuração de Chave Estrangeira Requerida"
 
 #: ckanext/validation/jobs.py:474
 msgid "Missing {} field"
-msgstr ""
+msgstr "Campo {} requerido"
 
 #: ckanext/validation/logic.py:86 ckanext/validation/logic.py:173
 #: ckanext/validation/logic.py:205
 msgid "Missing value"
-msgstr ""
+msgstr "Valor requerido"
 
 #: ckanext/validation/logic.py:101
 msgid "Unsupported resource format.Must be one of {}"
-msgstr ""
+msgstr "Formato de recurso não suportado. Deve ser um de {}"
 
 #: ckanext/validation/logic.py:108
 msgid "Resource must have a valid URL or an uploaded file"
-msgstr ""
+msgstr "O recurso deve ter um URL válido ou um ficheiro carregado"
 
 #: ckanext/validation/logic.py:566 ckanext/validation/logic.py:580
 msgid "Resource was not found."
-msgstr ""
+msgstr "O recurso não foi encontrado."
 
 #: ckanext/validation/plugin.py:158
 msgid "Must be a valid URL"
-msgstr ""
+msgstr "Deve ser um URL válido"
 
 #: ckanext/validation/validators.py:26
 msgid "Invalid Table Schema descriptor: {}"
-msgstr ""
+msgstr "Descritor de esquema de tabela inválido: {}"
 
 #: ckanext/validation/validators.py:30
 msgid "JSON error in Table Schema descriptor: {}"
-msgstr ""
+msgstr "Erro do JSON no descritor do esquema da tabela: {}"
 
 #: ckanext/validation/validators.py:41
 msgid "Invalid Table Schema: {}"
-msgstr ""
+msgstr "Esquema da tabela inválido: {}"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:68
 msgid "Upload"
-msgstr ""
+msgstr "Carregar"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:69
 msgid "Upload a Data Schema file from your computer"
-msgstr ""
+msgstr "Carregue um ficheiro de Esquema de Dados a partir do seu computador"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:76
 msgid "Link"
-msgstr ""
+msgstr "Link"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:77
 msgid "URL for a Data Schema file available on the Internet"
-msgstr ""
+msgstr "URL para um ficheiro de Esquema de Dados disponível na Internet"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:84
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:85
 msgid "Enter manually a Table Schema JSON object"
-msgstr ""
+msgstr "Entrar manualmente um objeto JSON de esquema de tabela"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:89
 msgid "Clear"
-msgstr ""
+msgstr "Limpar"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:178
 #: ckanext/validation/templates/scheming/form_snippets/resource_schema.html:16
 msgid "Data Schema"
-msgstr ""
+msgstr "Esquema de dados"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:180
 msgid "Data Schema URL"
-msgstr ""
+msgstr "URL do esquema de dados"
 
 #: ckanext/validation/assets/js/module-resource-schema.js:236
 msgid "Uploaded Data Schema"
-msgstr ""
+msgstr "Esquema de dados carregados"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3092
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "Schema"
-msgstr ""
+msgstr "Esquema"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3277
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "Stop on first error"
-msgstr ""
+msgstr "Parar no primeiro erro"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3283
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
@@ -774,11 +927,12 @@ msgid ""
 "Indicate whether validation should stop on the first error, or attempt to"
 " collect all errors."
 msgstr ""
+"Indique se a validação deve parar no primeiro erro, ou se deve tentar recolher todos os erros."
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3310
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "Ignore blank rows"
-msgstr ""
+msgstr "Ignorar linhas em branco"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3316
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
@@ -786,11 +940,12 @@ msgid ""
 "Indicate whether blank rows should be considered as errors, or simply "
 "ignored."
 msgstr ""
+"Indique se as linhas em branco devem ser consideradas como erros ou simplesmente ignoradas."
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3343
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "Ignore duplicate rows"
-msgstr ""
+msgstr "Ignorar linhas duplicadas"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3349
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
@@ -798,44 +953,45 @@ msgid ""
 "Indicate whether duplicate rows should be considered as errors, or simply"
 " ignored."
 msgstr ""
+"Indicar se as linhas duplicadas devem ser consideradas como erros ou simplesmente ignoradas."
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3368
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "There is fatal error in validation"
-msgstr ""
+msgstr "Há um erro fatal na validação"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3369
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3609
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "Error details"
-msgstr ""
+msgstr "Detalhes do erro"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3581
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3833
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "Invalid"
-msgstr ""
+msgstr "Inválido"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3627
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.min.js:2
 msgid "The full list of error messages:"
-msgstr ""
+msgstr "A lista completa de mensagens de erro:"
 
 #: ckanext/validation/assets/vendor/goodtables-ui/goodtables-ui.js:3666
 msgid "Show next 10 rows"
-msgstr ""
+msgstr "Mostrar as próximas 10 linhas"
 
 #: ckanext/validation/templates/scheming/form_snippets/foreign_keys.html:10
 msgid "Edit Foreign Key References"
-msgstr ""
+msgstr "Editar referências de chaves estrangeiras"
 
 #: ckanext/validation/templates/scheming/form_snippets/foreign_keys.html:15
 msgid "External References (Foreign Keys)"
-msgstr ""
+msgstr "Referências Externas (Chaves Estrangeiras)"
 
 #: ckanext/validation/templates/scheming/form_snippets/foreign_keys.html:16
 msgid "Browse Data"
-msgstr ""
+msgstr "Pesquisar dados"
 
 #: ckanext/validation/templates/scheming/form_snippets/foreign_keys.html:20
 msgid ""
@@ -846,6 +1002,7 @@ msgid ""
 "E.g. For area_id you should find your finalised Geographic Data package, "
 "and copy and paste the resource ID of the location hierarchy below."
 msgstr ""
+"Esta tabela de recursos tem campos cujos valores devem corresponder aos especificados em outra tabela. Para cada campo abaixo, <a target=\"_blank\" href=\"/dataset\">procure os dados</a> para encontrar a outra tabela onde estes valores estão definidos. Copie e cole o ID do recurso abaixo. Por exemplo, para o area_id deve encontrar o seu pacote de dados geográficos finalizado, e copiar e colar o ID do recurso da hierarquia de localização abaixo."
 
 #: ckanext/validation/templates/scheming/form_snippets/validation_options.html:16
 msgid ""
@@ -853,29 +1010,29 @@ msgid ""
 "href=\"https://github.com/frictionlessdata/ckanext-validation#validation-"
 "options\">here</a> for more information."
 msgstr ""
+"É possível passar um objeto JSON de opções de validação. Veja <a href=\"https://github.com/frictionlessdata/ckanext-validation#validation-options\">aqui</a> para mais informações."
 
 #: ckanext/validation/templates/validation/validation_read.html:1
 msgid "Validation Report"
-msgstr ""
+msgstr "Relatório de validação"
 
 #: ckanext/validation/templates/validation/validation_read.html:21
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 #: ckanext/validation/templates/validation/validation_read.html:22
 msgid "Validation timestamp"
-msgstr ""
+msgstr "Validação de carimbo de data/hora"
 
 #: ckanext/validation/templates/validation/validation_read.html:24
 msgid "Duration"
-msgstr ""
+msgstr "Duração"
 
 #: ckanext/validation/templates/validation/validation_read.html:37
 msgid "Error validating data"
-msgstr ""
+msgstr "Erro ao validar dados"
 
 #: ckanext/validation/templates/validation/snippets/validation_report_dialog.html:6
 #: ckanext/validation/templates/validation/snippets/validation_report_dialog_bs2.html:4
 msgid "Data Validation Report"
-msgstr ""
-
+msgstr "Relatório de validação de dados"
