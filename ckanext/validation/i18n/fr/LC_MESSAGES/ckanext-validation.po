@@ -800,7 +800,7 @@ msgstr ""
 
 #: ckanext/validation/jobs.py:339
 msgid "Unable to import JSON: "
-msgstr "Impossible d’importer JSON :"
+msgstr "Impossible d’importer json:"
 
 #: ckanext/validation/jobs.py:363 ckanext/validation/jobs.py:369
 #: ckanext/validation/jobs.py:401
