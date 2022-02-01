@@ -55,7 +55,7 @@ msgid ""
 msgstr ""
 "Erro de leitura de dados devido a erro IO.\n"
 "\n"
-"Método de resolução:\n"
+"Método de resolução:\n"
 "- Corrigir o caminho se não estiver correto."
 
 #: ckanext/validation/custom_checks.py:384
@@ -75,7 +75,7 @@ msgid ""
 msgstr ""
 "Erro de leitura de dados por causa de erro HTTP.\n"
 "\n"
-"Método de resolução:\n"
+"Método de resolução:\n"
 "- Corrija o link url se não estiver correto."
 
 #: ckanext/validation/custom_checks.py:393
@@ -100,7 +100,7 @@ msgstr ""
 "Erro de leitura de dados devido a conteúdo não suportado ou inconsistente.\n"
 "\n"
 "Método de resolução:\n"
-"- Corrigir o conteúdo dos dados (por exemplo, alterar os dados JSON para array ou arrays/objects). \n"
+"- Corrigir o conteúdo dos dados (por exemplo, alterar os dados JSON para array ou arrays/objects).\n"
 "- Introduza as definições de fonte corretas em {validator}."
 
 #: ckanext/validation/custom_checks.py:405
@@ -119,10 +119,10 @@ msgid ""
 " - Fix data scheme (e.g. change scheme from `ftp` to `http`).\n"
 " - Set correct scheme in {validator}."
 msgstr ""
-"Erro de leitura de dados devido a esquema incorreto.\n"
-"\n"
-"Método de resolução:\n"
-" - Corrigir esquema de dados (por exemplo, mudar esquema de `ftp` para `http`).\n"
+"Erro de leitura de dados devido a esquema incorreto.\n"
+"\n"
+"Método de resolução:\n"
+" - Corrigir esquema de dados (por exemplo, mudar esquema de `ftp` para `http`).\n"
 " - Definir o esquema correto em {validator}."
 
 #: ckanext/validation/custom_checks.py:415
@@ -144,7 +144,7 @@ msgstr ""
 "Erro de leitura de dados devido ao formato incorreto.\n"
 "\n"
 "Método de resolução:\n"
-"- Corrigir o formato dos dados (por exemplo, alterar a extensão do ficheiro de `txt` para `csv`).\n"
+"- Corrigir o formato dos dados (por exemplo, alterar a extensão do ficheiro de `txt` para `csv`).\n"
 "- Definir o formato correto em {validator}."
 
 #: ckanext/validation/custom_checks.py:425
@@ -163,10 +163,10 @@ msgid ""
 " - Fix data source if it's broken.\n"
 " - Set correct encoding in {validator}."
 msgstr ""
-"Erro de leitura de dados devido a um problema de codificação.\n"
-"\n"
-"Método de resolução:\n"
-"- Corrigir a fonte de dados se estiver quebrada.\n"
+"Erro de leitura de dados devido a um problema de codificação.\n"
+"\n"
+"Método de resolução:\n"
+"- Corrigir a fonte de dados se estiver quebrada.\n"
 "- Definir a codificação correta em {validator}."
 
 #: ckanext/validation/custom_checks.py:434
@@ -188,11 +188,11 @@ msgid ""
 " - If this error should be ignored disable `blank-header` check in "
 "{validator}."
 msgstr ""
-"Falta um valor para uma coluna na linha do cabeçalho. Os nomes das colunas devem ser fornecidos.\n"
-"\n"
-"Método de resolução:\n"
-"- Adicionar o nome da coluna requerida à primeira linha da fonte de dados.\n"
-"- Se a primeira linha começar com, ou terminar com uma vírgula, remova-a.\n"
+"Falta um valor para uma coluna na linha do cabeçalho. Os nomes das colunas devem ser fornecidos.\n"
+"\n"
+"Método de resolução:\n"
+"- Adicionar o nome da coluna requerida à primeira linha da fonte de dados.\n"
+"- Se a primeira linha começar com, ou terminar com uma vírgula, remova-a.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `blank-header` em {validator}."
 
 #: ckanext/validation/custom_checks.py:446
@@ -221,7 +221,7 @@ msgstr ""
 "\n"
 "Método de resolução:\n"
 "- Adicione o nome da coluna requerida à primeira linha dos dados\n"
-"- Se a primeira linha começar com, ou terminar com uma vírgula, remova-a.\n"
+"- Se a primeira linha começar com, ou terminar com uma vírgula, remova-a.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação de `duplicate-header` em {validator}."
 
 #: ckanext/validation/custom_checks.py:458
@@ -241,10 +241,10 @@ msgid ""
 " - If this error should be ignored disable `blank-row` check in "
 "{validator}."
 msgstr ""
-"Esta linha está vazia. Uma linha deve conter pelo menos um valor.\n"
-"\n"
-"Método de resolução:\n"
-"- Apagar a linha.\n"
+"Esta linha está vazia. Uma linha deve conter pelo menos um valor.\n"
+"\n"
+"Método de resolução:\n"
+"- Apagar a linha.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `blank-row` em {validator}."
 
 #: ckanext/validation/custom_checks.py:468
@@ -265,11 +265,11 @@ msgid ""
 " - If this error should be ignored disable `duplicate-row` check in "
 "{validator}."
 msgstr ""
-"Os mesmos dados foram vistos exatamente noutra linha.\n"
-"\n"
+"Os mesmos dados foram vistos exatamente noutra linha.\n"
+"\n"
 "Método de resolução:\n"
-"- se alguns dos dados estiverem incorretos, corrija-os.\n"
-" - Se a linha inteira for uma duplicata incorreta, remova-a.\n"
+"- se alguns dos dados estiverem incorretos, corrija-os.\n"
+" - Se a linha inteira for uma duplicata incorreta, remova-a.\n"
 " - Se este erro tiver de ser ignorado, desativar a verificação de `duplicate-row` em {validator}."
 
 #: ckanext/validation/custom_checks.py:480
@@ -338,10 +338,10 @@ msgid ""
 " - Update schema descriptor to be a valid descriptor\n"
 " - If this error should be ignored disable schema checks in {validator}."
 msgstr ""
-"O esquema fornecido não é válido.\n"
-"\n"
-"Método de resolução:\n"
-"- Atualizar o descritor do esquema para que seja um descritor válido\n"
+"O esquema fornecido não é válido.\n"
+"\n"
+"Método de resolução:\n"
+"- Atualizar o descritor do esquema para que seja um descritor válido\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação do esquema no {validator}."
 
 #: ckanext/validation/custom_checks.py:516
@@ -365,10 +365,10 @@ msgid ""
 " - If this error should be ignored disable `non-matching-header` check in"
 " {validator}."
 msgstr ""
-"Um dos cabeçalhos da fonte de dados não corresponde ao nome do campo definido no esquema.\n"
-"\n"
-"Método de resolução:\n"
-"- Renomear o cabeçalho na fonte de dados ou no campo no esquema\n"
+"Um dos cabeçalhos da fonte de dados não corresponde ao nome do campo definido no esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Renomear o cabeçalho na fonte de dados ou no campo no esquema\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `non-matching-header` no {validator}."
 
 #: ckanext/validation/custom_checks.py:526
@@ -390,10 +390,10 @@ msgid ""
 " - If this error should be ignored disable `extra-header` check in "
 "{validator}."
 msgstr ""
-"A primeira linha da fonte de dados contém cabeçalho que não existe no esquema.\n"
-"\n"
-"Método de resolução:\n"
-"- Remover a coluna extra da fonte de dados ou adicionar o campo ausente ao esquema\n"
+"A primeira linha da fonte de dados contém cabeçalho que não existe no esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Remover a coluna extra da fonte de dados ou adicionar o campo ausente ao esquema\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `extra-header` em {validator}."
 
 #: ckanext/validation/custom_checks.py:537
@@ -415,10 +415,10 @@ msgid ""
 " - If this error should be ignored disable `missing-header` check in "
 "{validator}."
 msgstr ""
-"Com base no esquema, deve haver um cabeçalho ausente na primeira linha da fonte de dados.\n"
-"\n"
-"Método de resolução:\n"
-"- Adicionar a coluna requerida à fonte de dados ou remover o campo extra do esquema\n"
+"Com base no esquema, deve haver um cabeçalho ausente na primeira linha da fonte de dados.\n"
+"\n"
+"Método de resolução:\n"
+"- Adicionar a coluna requerida à fonte de dados ou remover o campo extra do esquema\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação de `missing-header` no {validator}."
 
 #: ckanext/validation/custom_checks.py:548
@@ -443,11 +443,11 @@ msgid ""
 "{validator}. In this case all schema checks for row values will be "
 "ignored."
 msgstr ""
-"O valor não corresponde ao tipo e formato do esquema para este campo.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualizar o valor.\n"
-"- Se este valor estiver correto, ajustar o tipo e/ou formato.\n"
+"O valor não corresponde ao tipo e formato do esquema para este campo.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualizar o valor.\n"
+"- Se este valor estiver correto, ajustar o tipo e/ou formato.\n"
 "- Para ignorar o erro, desativar a verificação `type-or-format-error` em {validator}. Neste caso, todas as verificações de esquema para valores de linha serão ignoradas."
 
 #: ckanext/validation/custom_checks.py:561
@@ -472,11 +472,11 @@ msgid ""
 " - If this error should be ignored disable `required-constraint` check in"
 " {validator}."
 msgstr ""
-"Este campo é um campo obrigatório, mas não contém nenhum valor.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualize o valor.\n"
-"- Se o valor estiver correto, então remova a restrição `required' do esquema.\n"
+"Este campo é um campo obrigatório, mas não contém nenhum valor.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova a restrição `required' do esquema.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `required-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:572
@@ -501,11 +501,11 @@ msgid ""
 " - If this error should be ignored disable `pattern-constraint` check in "
 "{validator}."
 msgstr ""
-"Este valor de campo deve estar em conformidade com o padrão restrito.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualizar o valor.\n"
-"- Se o valor estiver correto, então remover ou refinar a restrição `padrão` no esquema.\n"
+"Este valor de campo deve estar em conformidade com o padrão restrito.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualizar o valor.\n"
+"- Se o valor estiver correto, então remover ou refinar a restrição `padrão` no esquema.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `pattern-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:584
@@ -531,11 +531,11 @@ msgid ""
 " - If this error should be ignored disable `unique-constraint` check in "
 "{validator}."
 msgstr ""
-"Este campo é um campo único mas contém um valor que foi utilizado noutra linha.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualize o valor.\n"
-"- Se o valor estiver correto, então os valores nesta coluna não são únicos. Remover a restrição `unique' do esquema.\n"
+"Este campo é um campo único mas contém um valor que foi utilizado noutra linha.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então os valores nesta coluna não são únicos. Remover a restrição `unique' do esquema.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `unique-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:597
@@ -557,8 +557,8 @@ msgid ""
 "  Please update the value making sure it exactly matches one of the valid"
 " values in the specified list."
 msgstr ""
-"Este valor de campo deve ser igual a um dos valores de uma lista pré-especificada.\n"
-"\n"
+"Este valor de campo deve ser igual a um dos valores de uma lista pré-especificada.\n"
+"\n"
 "Atualize o valor, certificando-se de que corresponde exactamente a um dos valores válidos da lista especificada."
 
 #: ckanext/validation/custom_checks.py:608
@@ -583,11 +583,11 @@ msgid ""
 " - If this error should be ignored disable `minimum-constraint` check in "
 "{validator}."
 msgstr ""
-"Este valor de campo deve ser maior ou igual ao valor de restrição.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualize o valor.\n"
-"- Se o valor estiver correto, então remover ou refinar a restrição `minimum' no esquema.\n"
+"Este valor de campo deve ser maior ou igual ao valor de restrição.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remover ou refinar a restrição `minimum' no esquema.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `minimum-constraint` em {validador}."
 
 #: ckanext/validation/custom_checks.py:620
@@ -612,11 +612,11 @@ msgid ""
 " - If this error should be ignored disable `maximum-constraint` check in "
 "{validator}."
 msgstr ""
-"Este valor de campo deve ser inferior ou igual ao valor de restrição.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualize o valor.\n"
-"- Se o valor estiver correto, então remova ou refine a restrição `maximum` no esquema.\n"
+"Este valor de campo deve ser inferior ou igual ao valor de restrição.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova ou refine a restrição `maximum` no esquema.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `maximum-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:632
@@ -642,11 +642,11 @@ msgid ""
 " - If this error should be ignored disable `minimum-length-constraint` "
 "check in {validator}."
 msgstr ""
-"O comprimento deste valor de campo deve ser maior ou igual ao valor da restrição do esquema.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualize o valor.\n"
-"- Se o valor estiver correto, então remova ou refine a restrição `minimumLength` no esquema.\n"
+"O comprimento deste valor de campo deve ser maior ou igual ao valor da restrição do esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova ou refine a restrição `minimumLength` no esquema.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `minimum-length-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:646
@@ -672,11 +672,11 @@ msgid ""
 " - If this error should be ignored disable `maximum-length-constraint` "
 "check in {validator}."
 msgstr ""
-"O comprimento deste valor de campo deve ser inferior ou igual ao valor da restrição do esquema.\n"
-"\n"
-"Método de resolução:\n"
-"- Se este valor não estiver correto, atualize o valor.\n"
-"- Se o valor estiver correto, então remova ou refine a restrição `maximumLength` no esquema.\n"
+"O comprimento deste valor de campo deve ser inferior ou igual ao valor da restrição do esquema.\n"
+"\n"
+"Método de resolução:\n"
+"- Se este valor não estiver correto, atualize o valor.\n"
+"- Se o valor estiver correto, então remova ou refine a restrição `maximumLength` no esquema.\n"
 "- Se este erro tiver de ser ignorado, desativar a verificação `maximum-length-constraint` em {validator}."
 
 #: ckanext/validation/custom_checks.py:661
