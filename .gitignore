@@ -101,3 +101,6 @@ ENV/
 
 # Translations
 *.pot
+
+# Lock files
+.~lock.*
