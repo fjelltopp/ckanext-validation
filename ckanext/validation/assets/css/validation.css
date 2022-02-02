@@ -7,6 +7,7 @@
 .resource-list .validation-badge{
     float: right;
     margin: 0 150px 0 0;
+    text-align:  right;
 }
 
 @media (max-width: 991px) {
