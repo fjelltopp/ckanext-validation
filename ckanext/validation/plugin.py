@@ -8,7 +8,7 @@ from six import string_types
 import ckan.plugins as p
 from ckan.common import _
 import ckantoolkit as t
-from ckanext.validation import settings
+from ckanext.validation import settings, cli
 from ckanext.validation.model import tables_exist
 from ckanext.validation.logic import (
     resource_validation_run, resource_validation_show,
@@ -45,6 +45,7 @@ class ValidationPlugin(p.SingletonPlugin, DefaultTranslation):
 
     p.implements(p.IConfigurable)
     p.implements(p.IConfigurer)
+    p.implements(p.IClick)
     p.implements(p.IActions)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IAuthFunctions)
@@ -70,7 +71,7 @@ class ValidationPlugin(p.SingletonPlugin, DefaultTranslation):
             log.critical(u'''
 The validation extension requires a database setup. Please run the following
 to create the database tables:
-    paster --plugin=ckanext-validation validation init-db
+    ckan --config /etc/ckan/ckan.ini validation init-db
 ''')
         else:
             log.debug(u'Validation tables exist')
@@ -78,6 +79,10 @@ to create the database tables:
         t.add_template_directory(config_, u'templates')
         t.add_public_directory(config_, u'public')
         t.add_resource(u'assets', 'ckanext-validation')
+
+    # IClick
+    def get_commands(self):
+        return cli.get_commands()
 
     # IRoutes
 
