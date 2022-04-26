@@ -1,4 +1,5 @@
 # encoding: utf-8
+import six
 from six import StringIO
 import pandas
 import logging
@@ -424,7 +425,7 @@ def _correct_transposition(report):
 
 def _excel_string_io_wrapper(df):
     df = df.iloc[1:]  # Remove headers
-    out = StringIO()
+    out = six.BytesIO()
     df.to_excel(out, columns=None, index=None)
     out.seek(0)
     return out
