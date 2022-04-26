@@ -1,11 +1,9 @@
 import datetime
-import StringIO
+from six import StringIO
 import io
 import json
 
-from nose.tools import assert_raises, assert_equals
 import mock
-
 import pytest
 
 import ckan.model as model
@@ -33,13 +31,13 @@ class TestResourceValidationRun(object):
 
     def test_resource_validation_run_param_missing(self, app):
 
-        assert_raises(
+        pytest.raises(
             t.ValidationError,
             call_action, 'resource_validation_run')
 
     def test_resource_validation_run_not_exists(self, app):
 
-        assert_raises(
+        pytest.raises(
             t.ObjectNotFound,
             call_action, 'resource_validation_run', resource_id='not_exists')
 
@@ -47,21 +45,16 @@ class TestResourceValidationRun(object):
 
         resource = factories.Resource(format='pdf')
 
-        with assert_raises(t.ValidationError) as e:
-
+        with pytest.raises(t.ValidationError, match='Unsupported resource format'):
             call_action('resource_validation_run', resource_id=resource['id'])
 
-        assert 'Unsupported resource format' in str(e.exception)
 
     def test_resource_validation_no_url_or_upload(self, app):
 
         resource = factories.Resource(url='', format='csv')
 
-        with assert_raises(t.ValidationError) as e:
-
+        with pytest.raises(t.ValidationError, match='Resource must have a valid URL'):
             call_action('resource_validation_run', resource_id=resource['id'])
-
-        assert 'Resource must have a valid URL' in str(e.exception)
 
     @mock.patch('ckanext.validation.logic.enqueue_job')
     @pytest.mark.skip(reason="Test fails in 2.9")
@@ -104,12 +97,12 @@ class TestResourceValidationRun(object):
         validation = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).one()
 
-        assert_equals(validation.resource_id, resource['id'])
-        assert_equals(validation.status, 'created')
+        assert validation.resource_id == resource['id']
+        assert validation.status == 'created'
         assert validation.created
-        assert_equals(validation.finished, None)
-        assert_equals(validation.report, None)
-        assert_equals(validation.error, None)
+        assert validation.finished is None
+        assert validation.report is None
+        assert validation.error is None
 
     @change_config('ckanext.validation.run_on_create_async', False)
     @mock.patch('ckanext.validation.logic.enqueue_job')
@@ -140,12 +133,12 @@ class TestResourceValidationRun(object):
         validation = Session.query(Validation).filter(
             Validation.resource_id == dataset['resources'][0]['id']).one()
 
-        assert_equals(validation.resource_id, dataset['resources'][0]['id'])
-        assert_equals(validation.status, 'created')
+        assert validation.resource_id == dataset['resources'][0]['id']
+        assert validation.status == 'created'
         assert validation.created is not timestamp
-        assert_equals(validation.finished, None)
-        assert_equals(validation.report, None)
-        assert_equals(validation.error, None)
+        assert validation.finished is None
+        assert validation.report is None
+        assert validation.error is None
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'validation')
@@ -154,13 +147,13 @@ class TestResourceValidationShow(object):
 
     def test_resource_validation_show_param_missing(self, app):
 
-        assert_raises(
+        pytest.raises(
             t.ValidationError,
             call_action, 'resource_validation_show')
 
     def test_resource_validation_show_not_exists(self, app):
 
-        assert_raises(
+        pytest.raises(
             t.ObjectNotFound,
             call_action, 'resource_validation_show', resource_id='not_exists')
 
@@ -172,7 +165,7 @@ class TestResourceValidationShow(object):
 
         dataset = factories.Dataset(resources=[resource])
 
-        assert_raises(
+        pytest.raises(
             t.ObjectNotFound,
             call_action, 'resource_validation_show',
             resource_id=dataset['resources'][0]['id'])
@@ -200,15 +193,13 @@ class TestResourceValidationShow(object):
             'resource_validation_show',
             resource_id=dataset['resources'][0]['id'])
 
-        assert_equals(validation_show['id'], validation.id)
-        assert_equals(validation_show['resource_id'], validation.resource_id)
-        assert_equals(validation_show['status'], validation.status)
-        assert_equals(validation_show['report'], validation.report)
-        assert_equals(validation_show['error'], validation.error)
-        assert_equals(
-            validation_show['created'], validation.created.isoformat())
-        assert_equals(
-            validation_show['finished'], validation.finished.isoformat())
+        assert validation_show['id'] == validation.id
+        assert validation_show['resource_id'] == validation.resource_id
+        assert validation_show['status'] == validation.status
+        assert validation_show['report'] == validation.report
+        assert validation_show['error'] == validation.error
+        assert validation_show['created'] == validation.created.isoformat()
+        assert validation_show['finished'] == validation.finished.isoformat()
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'validation')
@@ -217,13 +208,13 @@ class TestResourceValidationDelete(object):
 
     def test_resource_validation_delete_param_missing(self, app):
 
-        assert_raises(
+        pytest.raises(
             t.ValidationError,
             call_action, 'resource_validation_delete')
 
     def test_resource_validation_delete_not_exists(self, app):
 
-        assert_raises(
+        pytest.raises(
             t.ObjectNotFound,
             call_action, 'resource_validation_delete',
             resource_id='not_exists')
@@ -248,14 +239,14 @@ class TestResourceValidationDelete(object):
         count_before = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).count()
 
-        assert_equals(count_before, 1)
+        assert count_before == 1
 
         call_action('resource_validation_delete', resource_id=resource['id'])
 
         count_after = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).count()
 
-        assert_equals(count_after, 0)
+        assert count_after == 0
 
 
 @pytest.mark.ckan_config(u'ckan.plugins', u'validation')
@@ -271,7 +262,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_raises(t.NotAuthorized,
+        pytest.raises(t.NotAuthorized,
                       call_auth, 'resource_validation_run', context=context,
                       resource_id=resource['id'])
 
@@ -285,9 +276,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_equals(call_auth('resource_validation_run', context=context,
-                                resource_id=resource['id']),
-                      True)
+        assert call_auth('resource_validation_run', context=context, resource_id=resource['id']) is True
 
     def test_run_non_auth_user(self, app):
 
@@ -301,7 +290,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_raises(t.NotAuthorized,
+        pytest.raises(t.NotAuthorized,
                       call_auth, 'resource_validation_run', context=context,
                       resource_id=dataset['resources'][0]['id'])
 
@@ -318,9 +307,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_equals(call_auth('resource_validation_run', context=context,
-                                resource_id=dataset['resources'][0]['id']),
-                      True)
+        assert call_auth('resource_validation_run', context=context, resource_id=dataset['resources'][0]['id']) is True
 
     def test_delete_anon(self, app):
 
@@ -331,7 +318,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_raises(t.NotAuthorized,
+        pytest.raises(t.NotAuthorized,
                       call_auth, 'resource_validation_delete', context=context,
                       resource_id=resource['id'])
 
@@ -345,9 +332,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_equals(call_auth('resource_validation_delete', context=context,
-                                resource_id=resource['id']),
-                      True)
+        assert call_auth('resource_validation_delete', context=context, resource_id=resource['id']) is True
 
     def test_delete_non_auth_user(self, app):
 
@@ -361,7 +346,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_raises(t.NotAuthorized,
+        pytest.raises(t.NotAuthorized,
                       call_auth, 'resource_validation_delete', context=context,
                       resource_id=dataset['resources'][0]['id'])
 
@@ -378,9 +363,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_equals(call_auth('resource_validation_delete', context=context,
-                                resource_id=dataset['resources'][0]['id']),
-                      True)
+        assert call_auth('resource_validation_delete', context=context, resource_id=dataset['resources'][0]['id']) is True
 
     def test_show_anon(self, app):
 
@@ -391,9 +374,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_equals(call_auth('resource_validation_show', context=context,
-                                resource_id=resource['id']),
-                      True)
+        assert call_auth('resource_validation_show', context=context, resource_id=resource['id']) is True
 
     def test_show_anon_public_dataset(self, app):
 
@@ -408,9 +389,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_equals(call_auth('resource_validation_show', context=context,
-                                resource_id=dataset['resources'][0]['id']),
-                      True)
+        assert call_auth('resource_validation_show', context=context, resource_id=dataset['resources'][0]['id']) is True
 
     def test_show_anon_private_dataset(self, app):
 
@@ -425,7 +404,7 @@ class TestAuth(object):
             'model': model
         }
 
-        assert_raises(t.NotAuthorized,
+        pytest.raises(t.NotAuthorized,
                       call_auth, 'resource_validation_run', context=context,
                       resource_id=dataset['resources'][0]['id'])
 
@@ -453,7 +432,7 @@ class TestResourceValidationOnCreate(object):
 
         with mock.patch('io.open', return_value=invalid_stream):
 
-            with assert_raises(t.ValidationError) as e:
+            with pytest.raises(t.ValidationError) as e:
 
                 call_action(
                     'resource_create',
@@ -482,7 +461,7 @@ class TestResourceValidationOnCreate(object):
 
         with mock.patch('io.open', return_value=invalid_stream):
 
-            with assert_raises(t.ValidationError):
+            with pytest.raises(t.ValidationError):
                 call_action(
                     'resource_create',
                     package_id=dataset['id'],
@@ -492,7 +471,7 @@ class TestResourceValidationOnCreate(object):
 
         validation_count_after = model.Session.query(Validation).count()
 
-        assert_equals(validation_count_after, validation_count_before)
+        assert validation_count_after == validation_count_before
 
     @mock_uploads
     def test_validation_passes_on_upload(self, mock_open, app):
@@ -515,7 +494,7 @@ class TestResourceValidationOnCreate(object):
                 upload=mock_upload
             )
 
-        assert_equals(resource['validation_status'], 'success')
+        assert resource['validation_status'] == 'success'
         assert 'validation_timestamp' in resource
 
     @mock.patch('ckanext.validation.jobs.validate',
@@ -533,7 +512,7 @@ class TestResourceValidationOnCreate(object):
             url=url,
         )
 
-        assert_equals(resource['validation_status'], 'success')
+        assert resource['validation_status'] == 'success'
         assert 'validation_timestamp' in resource
 
 
@@ -564,7 +543,7 @@ class TestResourceValidationOnUpdate(object):
 
         with mock.patch('io.open', return_value=invalid_stream):
 
-            with assert_raises(t.ValidationError) as e:
+            with pytest.raises(t.ValidationError) as e:
 
                 call_action(
                     'resource_update',
@@ -595,7 +574,7 @@ class TestResourceValidationOnUpdate(object):
 
         with mock.patch('io.open', return_value=invalid_stream):
 
-            with assert_raises(t.ValidationError):
+            with pytest.raises(t.ValidationError):
 
                 call_action(
                     'resource_update',
@@ -606,7 +585,7 @@ class TestResourceValidationOnUpdate(object):
 
         validation_count_after = model.Session.query(Validation).count()
 
-        assert_equals(validation_count_after, 0)
+        assert validation_count_after == 0
 
     @mock_uploads
     def test_validation_passes_on_upload(self, mock_open, app):
@@ -633,7 +612,7 @@ class TestResourceValidationOnUpdate(object):
                 upload=mock_upload
             )
 
-        assert_equals(resource['validation_status'], 'success')
+        assert resource['validation_status'] == 'success'
         assert 'validation_timestamp' in resource
 
     @mock.patch('ckanext.validation.jobs.validate',
@@ -653,7 +632,7 @@ class TestResourceValidationOnUpdate(object):
             url='https://example.com/some.other.csv',
         )
 
-        assert_equals(resource['validation_status'], 'success')
+        assert resource['validation_status'] == 'success'
         assert 'validation_timestamp' in resource
 
 
@@ -673,7 +652,7 @@ class TestSchemaFields(object):
             schema='{"fields":[{"name":"id"}]}'
         )
 
-        assert_equals(resource['schema'], {'fields': [{'name': 'id'}]})
+        assert resource['schema'] == {'fields': [{'name': 'id'}]}
 
         assert 'schema_upload' not in resource
         assert 'schema_url' not in resource
@@ -692,7 +671,7 @@ class TestSchemaFields(object):
             schema=url
         )
 
-        assert_equals(resource['schema'], url)
+        assert resource['schema'] == url
 
         assert 'schema_upload' not in resource
         assert 'schema_url' not in resource
@@ -711,7 +690,7 @@ class TestSchemaFields(object):
             schema_url=url
         )
 
-        assert_equals(resource['schema'], url)
+        assert resource['schema'] == url
 
         assert 'schema_upload' not in resource
         assert 'schema_url' not in resource
@@ -720,7 +699,7 @@ class TestSchemaFields(object):
 
         url = 'not-a-url'
 
-        assert_raises(
+        pytest.raises(
             t.ValidationError, call_action, 'resource_create',
             url='http://example.com/file.csv',
             schema_url=url
@@ -730,7 +709,7 @@ class TestSchemaFields(object):
     @pytest.mark.skip(reason="Test fails in 2.9")
     def test_schema_upload_field(self, mock_open, app):
 
-        schema_file = StringIO.StringIO('{"fields":[{"name":"category"}]}')
+        schema_file = StringIO('{"fields":[{"name":"category"}]}')
 
         mock_upload = MockFieldStorage(schema_file, 'schema.json')
 
@@ -743,7 +722,7 @@ class TestSchemaFields(object):
             schema_upload=mock_upload
         )
 
-        assert_equals(resource['schema'], {'fields': [{'name': 'category'}]})
+        assert resource['schema'] == {'fields': [{'name': 'category'}]}
 
         assert 'schema_upload' not in resource
         assert 'schema_url' not in resource
@@ -771,7 +750,7 @@ class TestValidationOptionsField(object):
             validation_options=validation_options,
         )
 
-        assert_equals(resource['validation_options'], validation_options)
+        assert resource['validation_options'] == validation_options
 
     def test_validation_options_field_string(self, app):
 
@@ -790,5 +769,4 @@ class TestValidationOptionsField(object):
             validation_options=validation_options,
         )
 
-        assert_equals(resource['validation_options'],
-                      json.loads(validation_options))
+        assert resource['validation_options'] == json.loads(validation_options)
