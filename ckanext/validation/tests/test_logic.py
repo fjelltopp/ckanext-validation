@@ -48,7 +48,6 @@ class TestResourceValidationRun(object):
         with pytest.raises(t.ValidationError, match='Unsupported resource format'):
             call_action('resource_validation_run', resource_id=resource['id'])
 
-
     def test_resource_validation_no_url_or_upload(self, app):
 
         resource = factories.Resource(url='', format='csv')
