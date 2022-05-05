@@ -38,7 +38,7 @@
         {% if validation.error %}
         <div class="alert alert-danger">
             <H4> {{_('Error validating data')}} </H4>
-            {% for key, value in validation.error.iteritems() %}
+            {% for key, value in h.iteritems(validation.error) %}
                 <p class="validation-error">
                 <span class="validation-error-key">{{key}}</span> - <span class="validation-error-message">{{value}}</span>
                 </p>

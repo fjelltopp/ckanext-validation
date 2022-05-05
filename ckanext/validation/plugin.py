@@ -8,7 +8,7 @@ from six import string_types
 import ckan.plugins as p
 from ckan.common import _
 import ckantoolkit as t
-from ckanext.validation import settings, cli
+from ckanext.validation import settings, cli, blueprints
 from ckanext.validation.model import tables_exist
 from ckanext.validation.logic import (
     resource_validation_run, resource_validation_show,
@@ -25,7 +25,8 @@ from ckanext.validation.helpers import (
     bootstrap_version,
     show_validation_schemas,
     validation_get_foreign_keys,
-    validation_get_goodtables_spec
+    validation_get_goodtables_spec,
+    iteritems
 )
 from ckanext.validation.validators import (
     resource_schema_validator,
@@ -46,6 +47,7 @@ class ValidationPlugin(p.SingletonPlugin, DefaultTranslation):
     p.implements(p.IConfigurable)
     p.implements(p.IConfigurer)
     p.implements(p.IClick)
+    p.implements(p.IBlueprint)
     p.implements(p.IActions)
     p.implements(p.IRoutes, inherit=True)
     p.implements(p.IAuthFunctions)
@@ -83,6 +85,10 @@ to create the database tables:
     # IClick
     def get_commands(self):
         return cli.get_commands()
+
+    # IBlueprint
+    def get_blueprint(self):
+        return [blueprints.validation]
 
     # IRoutes
 
@@ -133,7 +139,8 @@ to create the database tables:
             u'bootstrap_version': bootstrap_version,
             u'validator_show_validation_schemas': show_validation_schemas,
             u'validation_get_foreign_keys': validation_get_foreign_keys,
-            u'validation_get_goodtables_spec': validation_get_goodtables_spec
+            u'validation_get_goodtables_spec': validation_get_goodtables_spec,
+            u'iteritems': iteritems
         }
 
     # IResourceController

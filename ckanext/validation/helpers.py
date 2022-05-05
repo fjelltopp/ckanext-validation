@@ -1,6 +1,7 @@
 # encoding: utf-8
 import json
 import os
+import six
 from ckan.lib.helpers import url_for_static, lang
 from ckantoolkit import url_for, _, config, asbool, literal, get_action
 from ckanext.scheming.helpers import scheming_get_dataset_schema
@@ -213,3 +214,7 @@ def _files_from_directory(path, extension='.json'):
 def validation_get_goodtables_spec():
     spec_override = get_spec_override()
     return json.dumps(spec_override, sort_keys=True)
+
+
+def iteritems(dictionary):
+    return six.iteritems(dictionary)
