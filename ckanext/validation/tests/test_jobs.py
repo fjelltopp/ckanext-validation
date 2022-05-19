@@ -1,9 +1,7 @@
 import mock
-import StringIO
+from six import StringIO
 import json
 import io
-
-from nose.tools import assert_equals
 
 import pytest
 
@@ -132,8 +130,8 @@ class TestValidationJob(object):
         validation = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).one()
 
-        assert_equals(validation.status, 'success')
-        assert_equals(validation.report, VALID_REPORT)
+        assert validation.status == 'success'
+        assert validation.report == VALID_REPORT
         assert validation.finished
 
     @mock.patch('ckanext.validation.jobs.validate',
@@ -148,8 +146,8 @@ class TestValidationJob(object):
         validation = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).one()
 
-        assert_equals(validation.status, 'failure')
-        assert_equals(validation.report, INVALID_REPORT)
+        assert validation.status == 'failure'
+        assert validation.report == INVALID_REPORT
         assert validation.finished
 
     @mock.patch('ckanext.validation.jobs.validate',
@@ -164,9 +162,9 @@ class TestValidationJob(object):
         validation = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).one()
 
-        assert_equals(validation.status, 'error')
-        assert_equals(validation.report, None)
-        assert_equals(validation.error, {'message': 'Some warning'})
+        assert validation.status == 'error'
+        assert validation.report is None
+        assert validation.error == {'message': 'Some warning'}
         assert validation.finished
 
     @mock.patch('ckanext.validation.jobs.validate',
@@ -200,10 +198,8 @@ class TestValidationJob(object):
 
         updated_resource = call_action('resource_show', id=resource['id'])
 
-        assert_equals(updated_resource['validation_status'], validation.status)
-        assert_equals(
-            updated_resource['validation_timestamp'],
-            validation.finished.isoformat())
+        assert updated_resource['validation_status'] == validation.status
+        assert updated_resource['validation_timestamp'] == validation.finished.isoformat()
 
     @mock_uploads
     def test_job_local_paths_are_hidden(self, mock_open):
@@ -231,8 +227,7 @@ class TestValidationJob(object):
         assert source.endswith('invalid.csv')
 
         warning = validation.report['warnings'][0]
-        assert_equals(
-            warning, 'Table inspection has reached 1000 row(s) limit')
+        assert warning == 'Table inspection has reached 1000 row(s) limit'
 
     @mock_uploads
     def test_job_pass_validation_options(self, mock_open):
@@ -269,7 +264,7 @@ a,b,c
         validation = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).one()
 
-        assert_equals(validation.report['valid'], True)
+        assert validation.report['valid'] is True
 
     @mock_uploads
     def test_job_pass_validation_options_string(self, mock_open):
@@ -306,4 +301,4 @@ a;b;c
         validation = Session.query(Validation).filter(
             Validation.resource_id == resource['id']).one()
 
-        assert_equals(validation.report['valid'], True)
+        assert validation.report['valid'] is True

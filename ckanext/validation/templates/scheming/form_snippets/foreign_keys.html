@@ -20,7 +20,7 @@
         {{_('This resource table has fields whose values must match those specified in another table.  For each field below, <a target="_blank" href="/dataset">please browse the data</a> to find the other table where these values are defined. Copy and paste the resource\'s ID below. E.g. For area_id you should find your finalised Geographic Data package, and copy and paste the resource ID of the location hierarchy below.')|safe}}
       </p>
 
-    {% for key, key_data in foreign_key_options.fields.iteritems() %}
+    {% for key, key_data in h.iteritems(foreign_key_options.fields) %}
       {% call form.input(
           'foreign-key-'+key_data.field_name,
           id='field-foreign-key-' + key_data.field_name,

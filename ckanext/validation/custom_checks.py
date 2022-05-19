@@ -1,4 +1,5 @@
 # encoding: utf-8
+import six
 from six import string_types
 from goodtables import Error
 import ckantoolkit as t
@@ -331,12 +332,13 @@ class ForeignKeyCheck(object):
 
 def register_translator():
     # Workaround until core translation function defaults to Flask
-    from paste.registry import Registry
-    from ckan.lib.cli import MockTranslator
-    from pylons import translator
-    registry = Registry()
-    registry.prepare()
-    registry.register(translator, MockTranslator())
+    if six.PY2:
+        from paste.registry import Registry
+        from ckan.lib.cli import MockTranslator
+        from pylons import translator
+        registry = Registry()
+        registry.prepare()
+        registry.register(translator, MockTranslator())
 
 
 def merge_two_dicts(x, y):
