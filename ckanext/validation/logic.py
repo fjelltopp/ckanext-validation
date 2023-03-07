@@ -125,11 +125,12 @@ def resource_validation_run(context, data_dict):
 
     Session.add(validation)
     Session.commit()
-
+    print(resource)
+    print(context)
     if async_job:
-        enqueue_job(run_validation_job, [resource])
+        enqueue_job(run_validation_job, [resource, context])
     else:
-        run_validation_job(resource)
+        run_validation_job(resource, context)
 
 
 @t.side_effect_free

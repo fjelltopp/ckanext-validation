@@ -16,12 +16,13 @@ import ckantoolkit as t
 
 from ckanext.validation.model import Validation
 from ckanext.validation.utils import get_update_mode_from_config
+from ckan import authz
 
 
 log = logging.getLogger(__name__)
 
 
-def run_validation_job(resource):
+def run_validation_job(resource, context):
 
     log.debug('Validating resource %s', resource['id'])
 
@@ -51,9 +52,6 @@ def run_validation_job(resource):
     if resource_options:
         options.update(resource_options)
 
-    dataset = t.get_action('package_show')(
-        {'ignore_auth': True}, {'id': resource['package_id']})
-
     source = None
     if resource.get('url_type') == 'upload':
         upload = uploader.get_resource_uploader(resource)
@@ -62,9 +60,10 @@ def run_validation_job(resource):
         else:
             # Upload is not the default implementation (ie it's a cloud storage
             # implementation)
+            log.debug('Inside validation - cloud storage')
             pass_auth_header = t.asbool(
                 t.config.get('ckanext.validation.pass_auth_header', True))
-            if dataset['private'] and pass_auth_header:
+            if authz.is_authorized('resource_show', context, resource['id']) and pass_auth_header:
                 s = requests.Session()
                 s.headers.update({
                     'Authorization': t.config.get(
