@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-validation 2.0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-07-12 12:41+0000\n"
-"PO-Revision-Date: 2023-07-12 12:41+0000\n"
+"POT-Creation-Date: 2023-07-13 12:23+0000\n"
+"PO-Revision-Date: 2023-07-13 12:23+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
 "Language-Team: fr <LL@li.org>\n"
@@ -27,15 +27,15 @@ msgstr "Non autorisé à lire ce rapport de validation"
 #: ckanext/validation/blueprints.py:41 ckanext/validation/controller.py:39
 #: ckanext/validation/views.py:41
 msgid "No validation report exists for this resource"
-msgstr "Aucun rapport de validation n'existe pour cette ressource"
+msgstr "Il n’existe aucun rapport de validation pour cette ressource"
 
 #: ckanext/validation/helpers.py:18
 msgid "Valid data"
-msgstr "Donnée(s) valide(s)"
+msgstr "Données valides"
 
 #: ckanext/validation/helpers.py:19
 msgid "Invalid data"
-msgstr "Donnée(s) invalide(s)"
+msgstr "Données non valides"
 
 #: ckanext/validation/helpers.py:20
 msgid "Error during validation"
@@ -43,7 +43,7 @@ msgstr "Erreur durant la validation"
 
 #: ckanext/validation/helpers.py:21
 msgid "Data validation unknown"
-msgstr "Validation de données inconnue"
+msgstr "Validation des données inconnue"
 
 #: ckanext/validation/helpers.py:60
 msgid ""
@@ -60,7 +60,7 @@ msgstr ""
 
 #: ckanext/validation/logic.py:558 ckanext/validation/logic.py:572
 msgid "Resource was not found."
-msgstr "La ressource n'a pas été trouvée."
+msgstr "La ressource n’a pas été trouvée."
 
 #: ckanext/validation/templates/scheming/form_snippets/resource_schema.html:16
 #: ckanext/validation/webassets/js/module-resource-schema.js:180
@@ -101,7 +101,7 @@ msgstr "Télécharger"
 
 #: ckanext/validation/webassets/js/module-resource-schema.js:71
 msgid "Upload a Data Schema file from your computer"
-msgstr "Transférez un fichier de schéma de données à partir de votre ordinateur."
+msgstr "Transférez un fichier de schéma de données à partir de votre ordinateur"
 
 #: ckanext/validation/webassets/js/module-resource-schema.js:78
 msgid "Link"
