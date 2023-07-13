@@ -98,6 +98,7 @@ setup(
             ('**.py', 'python', None),
             ('**.js', 'javascript', None),
             ('**/templates/**.html', 'ckan', None),
+            ('**/webassets/**.js', 'javascript', None),
         ],
     }
 )
