@@ -178,6 +178,11 @@ def _validate_table(source, _format='csv', schema=None, reference_resources=[], 
     limit_errors = options.pop('limit_errors', None)
     limit_rows = options.pop('limit_rows', None)
 
+    # handle schema sync
+    if 'schema_sync' in options:
+        schema_sync = options.pop('schema_sync', False)
+        options['detector'] = Detector(schema_sync=schema_sync)
+
     with system.use_context(**frictionless_context):
         # load source as frictionless Resource
         if resource_schema:
