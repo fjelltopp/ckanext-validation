@@ -1,0 +1,126 @@
+# Portuguese (Portugal) translations for ckanext-validation.
+# Copyright (C) 2023 ORGANIZATION
+# This file is distributed under the same license as the ckanext-validation
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-validation 2.0.0\n"
+"Report-Msgid-Bugs-To: info@fjelltopp.org\n"
+"POT-Creation-Date: 2023-07-13 12:23+0000\n"
+"PO-Revision-Date: 2023-07-13 12:25+0000\n"
+"Last-Translator: Toavina A. <toavina@fjelltopp.org>\n"
+"Language: pt_PT\n"
+"Language-Team: pt_PT <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: ckanext/validation/blueprints.py:38 ckanext/validation/controller.py:36
+#: ckanext/validation/views.py:38
+msgid "Unauthorized to read this validation report"
+msgstr "Não autorizado a ler este relatório de validação"
+
+#: ckanext/validation/blueprints.py:41 ckanext/validation/controller.py:39
+#: ckanext/validation/views.py:41
+msgid "No validation report exists for this resource"
+msgstr "Não existe um relatório de validação para este recurso"
+
+#: ckanext/validation/helpers.py:18
+msgid "Valid data"
+msgstr "Dados válidos"
+
+#: ckanext/validation/helpers.py:19
+msgid "Invalid data"
+msgstr "Dados inválidos"
+
+#: ckanext/validation/helpers.py:20
+msgid "Error during validation"
+msgstr "Erro durante a validação"
+
+#: ckanext/validation/helpers.py:21
+msgid "Data validation unknown"
+msgstr "Validação de dados desconhecida"
+
+#: ckanext/validation/helpers.py:60
+msgid ""
+"\n"
+"There are validation issues with this file, please see the\n"
+"<a {params}>report</a> for details. Once you have resolved the issues,\n"
+"click the button below to replace the file."
+msgstr ""
+"Existem problemas de validação com este ficheiro, consulte o <a {params}>relatório</a> para mais detalhes. Depois de resolver os problemas, clique no botão abaixo para substituir o ficheiro."
+
+#: ckanext/validation/logic.py:558 ckanext/validation/logic.py:572
+msgid "Resource was not found."
+msgstr "O recurso não foi encontrado."
+
+#: ckanext/validation/templates/scheming/form_snippets/resource_schema.html:16
+#: ckanext/validation/webassets/js/module-resource-schema.js:180
+msgid "Data Schema"
+msgstr "Esquema de dados"
+
+#: ckanext/validation/templates/scheming/form_snippets/validation_options.html:16
+msgid ""
+"You can pass a JSON object of validation options. See <a "
+"href=\"https://github.com/frictionlessdata/ckanext-validation#validation-"
+"options\">here</a> for more information."
+msgstr ""
+"É possível passar um objeto JSON de opções de validação. Veja <a href=\"https://github.com/frictionlessdata/ckanext-validation#validation-options\">aqui</a> para mais informações."
+
+#: ckanext/validation/templates/validation/validation_read.html:4
+msgid "Validation Report"
+msgstr "Relatório de validação"
+
+#: ckanext/validation/templates/validation/validation_read.html:27
+msgid "Validation timestamp"
+msgstr "Validação de carimbo de data/hora"
+
+#: ckanext/validation/templates/validation/validation_read.html:29
+msgid "Duration"
+msgstr "Duração"
+
+#: ckanext/validation/templates/validation/snippets/validation_report_dialog.html:6
+#: ckanext/validation/templates/validation/snippets/validation_report_dialog_bs2.html:4
+msgid "Data Validation Report"
+msgstr "Relatório de validação de dados"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:70
+msgid "Upload"
+msgstr "Carregar"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:71
+msgid "Upload a Data Schema file from your computer"
+msgstr "Carregue um ficheiro de Esquema de Dados a partir do seu computador"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:78
+msgid "Link"
+msgstr "Link"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:79
+msgid "URL for a Data Schema file available on the Internet"
+msgstr "URL para um ficheiro de Esquema de Dados disponível na Internet"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:86
+msgid "JSON"
+msgstr "JSON"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:87
+msgid "Enter manually a Table Schema JSON object"
+msgstr "Entrar manualmente um objeto JSON de esquema de tabela"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:91
+msgid "Clear"
+msgstr "Limpar"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:182
+msgid "Data Schema URL"
+msgstr "URL do esquema de dados"
+
+#: ckanext/validation/webassets/js/module-resource-schema.js:238
+msgid "Uploaded Data Schema"
+msgstr "Esquema de dados carregados"
+
