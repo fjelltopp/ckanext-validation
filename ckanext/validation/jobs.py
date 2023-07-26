@@ -13,6 +13,7 @@ from ckan.model import Session
 import ckan.lib.uploader as uploader
 
 import ckantoolkit as t
+from ckan.plugins import core
 
 from ckanext.validation.model import Validation
 from ckanext.validation.utils import get_update_mode_from_config
@@ -57,7 +58,7 @@ def run_validation_job(resource):
     source = None
     if resource.get('url_type') == 'upload':
         upload = uploader.get_resource_uploader(resource)
-        if isinstance(upload, uploader.ResourceUpload):
+        if isinstance(upload, uploader.ResourceUpload) and not core.plugin_loaded('blob_storage'):
             source = upload.get_path(resource['id'])
         else:
             # Upload is not the default implementation (ie it's a cloud storage
