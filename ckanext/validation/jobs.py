@@ -25,6 +25,8 @@ log = logging.getLogger(__name__)
 def run_validation_job(resource):
 
     log.debug('Validating resource %s', resource['id'])
+    print('Validating resource %s', resource['id'])
+    print("with new ckanext-validation =] ")
 
     try:
         validation = Session.query(Validation).filter(
