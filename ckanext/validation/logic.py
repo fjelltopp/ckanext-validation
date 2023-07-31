@@ -79,6 +79,7 @@ def resource_validation_run(context, data_dict):
     :rtype: string
 
     '''
+    print("start resource_validation_run")
 
     t.check_access(u'resource_validation_run', context, data_dict)
 
