@@ -241,6 +241,8 @@ def _prepare_foreign_keys(dataset, schema):
             dataset_resources = [{r.get('resource_type'): {'url':r.get('url'), 'format': r.get('format')}} for r in dataset['resources']]
             dataset_resources = {k:v for list_item in dataset_resources for (k,v) in list_item.items()}
 
+            print(dataset_resources)
+
             # check foreign key resource is in the dataset and get the url
             # if it turns out it isn't we will raise an exception
             if foreign_key['reference']['resource'] in dataset_resources.keys():
