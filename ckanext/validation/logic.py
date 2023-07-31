@@ -3,7 +3,7 @@
 import datetime
 import logging
 import json
-
+import time
 from sqlalchemy.orm.exc import NoResultFound
 
 import ckan.plugins as plugins
@@ -257,6 +257,9 @@ def resource_validation_run_batch(context, data_dict):
 
 
     '''
+
+    print("resource_validation_run_batch")
+    time.sleep(60)
 
     t.check_access(u'resource_validation_run_batch', context, data_dict)
 
