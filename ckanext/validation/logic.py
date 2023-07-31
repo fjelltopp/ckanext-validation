@@ -126,6 +126,8 @@ def resource_validation_run(context, data_dict):
     Session.add(validation)
     Session.commit()
 
+    log.info("about to decide how to run validation job")
+    print("about to decide how to run validation job")
     if async_job:
         enqueue_job(run_validation_job, [resource])
     else:
