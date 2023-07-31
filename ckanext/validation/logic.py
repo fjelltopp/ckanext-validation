@@ -259,9 +259,10 @@ def resource_validation_run_batch(context, data_dict):
     '''
 
     print("resource_validation_run_batch")
-    time.sleep(60)
 
     t.check_access(u'resource_validation_run_batch', context, data_dict)
+    time.sleep(60)
+    print("resource_validation_run_batch")
 
     page = 1
     page_size = 100
