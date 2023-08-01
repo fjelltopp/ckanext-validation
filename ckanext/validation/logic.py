@@ -129,10 +129,11 @@ def resource_validation_run(context, data_dict):
 
     log.info("about to decide how to run validation job")
     print("about to decide how to run validation job")
-    if async_job:
-        enqueue_job(run_validation_job, [resource])
-    else:
-        run_validation_job(resource)
+    # if async_job:
+    #     enqueue_job(run_validation_job, [resource])
+    # else:
+    #     run_validation_job(resource)
+    run_validation_job(resource)
 
 
 @t.side_effect_free

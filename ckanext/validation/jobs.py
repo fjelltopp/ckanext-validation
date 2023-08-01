@@ -23,7 +23,8 @@ log = logging.getLogger(__name__)
 
 
 def run_validation_job(resource):
-
+    # import pydevd_pycharm
+    # pydevd_pycharm.settrace('172.17.0.1', port=9000, stdoutToServer=True, stderrToServer=True)
     log.debug('Validating resource %s', resource['id'])
     print('Validating resource %s', resource['id'])
     print("with new ckanext-validation =] ")
@@ -86,7 +87,10 @@ def run_validation_job(resource):
             if schema.startswith('http'):
                 r = requests.get(schema)
                 schema = r.json()
-            schema = json.loads(schema)
+            try:
+                schema = json.loads(schema)
+            except json.decoder.JSONDecodeError:
+                logging.error("Failed to decode JSON schema: %s", schema)
 
     _format = resource['format'].lower()
 
@@ -143,10 +147,16 @@ def run_validation_job(resource):
     t.get_action('resource_patch')(patch_context, data_dict)
 
 
+def _find_file_in_directory_and_subdirs(schema, basepath, extension = '.json'):
+    import os
+    if isinstance(schema, str):
+        for root, dirs, files in os.walk(basepath):
+            if schema + extension in files:
+                return os.path.join(root, schema + extension)
+    return None
 
 
 def _validate_table(source, _format='csv', schema=None, reference_resources=[], **options):
-
     # This option is needed to allow Frictionless Framework to validate absolute paths
     frictionless_context = { 'trusted': True }
     http_session = options.pop('http_session', None) or requests.Session()
@@ -158,6 +168,9 @@ def _validate_table(source, _format='csv', schema=None, reference_resources=[], 
         http_session.proxies.update({'http': proxy, 'https': proxy})
 
     frictionless_context['http_session'] = http_session
+
+    schema = _find_file_in_directory_and_subdirs(schema, t.config.get('ckanext.unaids.schema_directory'), extension = '.json')
+
     resource_schema = Schema.from_descriptor(schema) if schema else None
 
     # Load the Resource Dialect as described in https://framework.frictionlessdata.io/docs/framework/dialect.html
