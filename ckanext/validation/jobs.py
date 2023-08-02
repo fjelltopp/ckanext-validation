@@ -250,7 +250,9 @@ def _prepare_foreign_keys(dataset, schema):
                 raise t.ValidationError(
                     {'foreignKey': 'Foreign key reference does not exist. ' +
                     'Must be a url, json object or a resource in this dataset but was: ' +
-                    foreign_key['reference']['resource']})
+                    foreign_key['reference']['resource'] +
+                    ' Available resources: ' + str(dataset_resources.keys()) +
+                    ' Schema used: ' + str(schema)})
         
         referenced_resources.append({'name': foreign_key['reference']['resource'], 'path': foreign_key_resource, 'format': foreign_key_format})
 
