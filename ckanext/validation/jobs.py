@@ -81,12 +81,17 @@ def run_validation_job(resource):
         source = resource['url']
 
     schema = resource.get('schema')
+
     if schema:
         if isinstance(schema, str):
             if schema.startswith('http'):
                 r = requests.get(schema)
                 schema = r.json()
-            schema = json.loads(schema)
+
+            try:
+                schema = json.loads(schema)
+            except Exception as e:
+                raise t.ValidationError({'schema': 'Invalid schema string: ' + str(schema) + " failed with error:" + str(e)})
 
     _format = resource['format'].lower()
 
