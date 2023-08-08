@@ -126,6 +126,14 @@ def resource_validation_run(context, data_dict):
     Session.add(validation)
     Session.commit()
 
+    data_dict = {
+        'id': resource['id'],
+        'validation_status': validation.status,
+        'validation_timestamp': validation.created.isoformat()
+    }
+    context['_dont_validate'] = True
+    t.get_action('resource_patch')(context, data_dict)
+
     if async_job:
         enqueue_job(run_validation_job, [resource])
     else:
