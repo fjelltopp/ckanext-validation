@@ -95,10 +95,13 @@ def run_validation_job(resource):
 
     _format = resource['format'].lower()
 
+    reference_resources=[]
+    foreign_keys_error = {}
     if schema and 'foreignKeys' in schema:
-        reference_resources = _prepare_foreign_keys(dataset, schema)
-    else:
-        reference_resources=[]
+        try:
+            reference_resources = _prepare_foreign_keys(dataset, schema)
+        except Exception as e:
+            foreign_keys_error = {'errors': 'Error preparing foreign keys: ' + str(e)}
 
     report = _validate_table(source, reference_resources=reference_resources, _format=_format, schema=schema, **options)
 
@@ -163,7 +166,10 @@ def _validate_table(source, _format='csv', schema=None, reference_resources=[], 
         http_session.proxies.update({'http': proxy, 'https': proxy})
 
     frictionless_context['http_session'] = http_session
-    resource_schema = Schema.from_descriptor(schema) if schema else None
+    try:
+        resource_schema = Schema.from_descriptor(schema) if schema else None
+    except Exception as e:
+        raise t.ValidationError({'schema': 'Invalid schema: ' + str(schema) + " failed with error:" + str(e)})
 
     # Load the Resource Dialect as described in https://framework.frictionlessdata.io/docs/framework/dialect.html
     if 'dialect' in options:
