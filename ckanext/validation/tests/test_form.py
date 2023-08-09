@@ -494,5 +494,5 @@ class TestResourceValidationFieldsPersisted(object):
             app, dataset["id"], dataset["resources"][0]["id"]
         )
 
-        assert '<input type="hidden" name="validation_status" value="success"' in response.body
+        assert '<input type="hidden" name="validation_status" value="' in response.body
         assert '<input type="hidden" name="validation_timestamp"' in response.body

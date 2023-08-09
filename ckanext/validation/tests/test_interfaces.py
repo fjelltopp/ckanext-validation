@@ -106,7 +106,8 @@ class TestInterfaceSync():
         )
         # One for the resource_update, one for the resource_patch one
         # to store the result, which does not trigger another job
-        assert _get_plugin_calls() == 2
+        # and one for the initial validation status patch
+        assert _get_plugin_calls() == 3
 
         assert mock_validation.called
 

@@ -79,7 +79,6 @@ def resource_validation_run(context, data_dict):
     :rtype: string
 
     '''
-
     t.check_access(u'resource_validation_run', context, data_dict)
 
     if not data_dict.get(u'resource_id'):
