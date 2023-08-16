@@ -15,6 +15,8 @@ import ckan.lib.uploader as uploader
 import ckantoolkit as t
 from ckan.plugins import core
 
+from ckanext.scheming.helpers import scheming_get_dataset_schema
+
 from ckanext.validation.model import Validation
 from ckanext.validation.utils import get_update_mode_from_config
 
@@ -247,8 +249,7 @@ def _prepare_foreign_keys(dataset, schema):
             log.debug('Foreign Key resource is (presumably) a resource in this dataset.')
 
             # get the available resources in this dataset
-            dataset_resources = [{r.get('resource_type'): {'url':r.get('url'), 'format': r.get('format')}} for r in dataset['resources']]
-            dataset_resources = {k:v for list_item in dataset_resources for (k,v) in list_item.items()}
+            dataset_resources = {_validation_get_schema(dataset['type'], r.get('resource_type')): {'url':r.get('url'), 'format': r.get('format')} for r in dataset['resources']}
 
             # check foreign key resource is in the dataset and get the url
             # if it turns out it isn't we will raise an exception
@@ -267,6 +268,14 @@ def _prepare_foreign_keys(dataset, schema):
 
     log.debug('Foreign key resources required: ' + str(referenced_resources))
     return referenced_resources
+
+def _validation_get_schema(dataset_type, resource_type):
+    schema = scheming_get_dataset_schema(dataset_type)
+    for resource in schema.get('resources', []):
+        if resource.get("resource_type", "") == resource_type:
+            for field in resource.get('resource_fields', []):
+                if field['field_name'] == "schema":
+                    return field['field_value']
 
 def _get_site_user_api_key():
 
