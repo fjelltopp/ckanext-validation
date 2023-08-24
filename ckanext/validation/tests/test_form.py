@@ -403,7 +403,7 @@ class TestResourceValidationOnCreateForm(object):
             extra_environ=env,
             data=data
         )
-
+        # Tests for github
         assert "validation" in response.body
         assert "missing-cell" in response.body
         assert 'Row at position \\&#34;2\\&#34; has a missing cell in field \\&#34;d\\&#34; at position \\&#34;4\\&#34;' in response.body
