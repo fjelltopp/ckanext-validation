@@ -135,8 +135,7 @@ def resource_validation_run(context, data_dict):
 
     patch_context = {
         'ignore_auth': True,
-        'user': t.get_action('get_site_user')({'ignore_auth': True})['name'],
-        '_dont_validate': True,
+        'user': t.get_action('get_site_user')({'ignore_auth': True})['name']
     }
     t.get_action('resource_patch')(patch_context, data_dict)
 
