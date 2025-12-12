@@ -4,7 +4,7 @@ import datetime
 import uuid
 import logging
 
-from sqlalchemy import Column, Unicode, DateTime
+from sqlalchemy import Column, Unicode, DateTime, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSON
 
@@ -33,10 +33,26 @@ class Validation(Base):
 
 
 def create_tables():
-    Validation.__table__.create()
+    if metadata.bind is None:
+        from ckan.model import meta
+        engine = meta.engine
+    else:
+        engine = metadata.bind
 
+    Validation.__table__.create(engine, checkfirst=True)
     log.info(u'Validation database tables created')
 
 
 def tables_exist():
-    return Validation.__table__.exists()
+    if metadata.bind is None:
+        from ckan.model import meta
+        engine = meta.engine
+    else:
+        engine = metadata.bind
+
+    # Return False if engine is not available yet (e.g., during early startup)
+    if engine is None:
+        return False
+
+    inspector = inspect(engine)
+    return inspector.has_table(Validation.__tablename__)
