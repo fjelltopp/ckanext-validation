@@ -592,13 +592,17 @@ def resource_update(up_func, context, data_dict):
         except Exception:
             current_resource = {}
 
+        # Set flag to prevent hooks from also triggering validation
+        context['_validation_handled_in_action'] = True
+
         result = up_func(context, data_dict)
 
-        # Check if validation is needed (similar logic to before_update hook)
+        # Check if validation is needed (matches before_update hook logic)
         from ckanext.validation.interfaces import IDataValidation
         needs_validation = False
+
         if ((
-            # New file uploaded
+            # New file uploaded (check data_dict for upload field)
             data_dict.get(u'upload') or
             # External URL changed
             result.get(u'url') != current_resource.get(u'url') or

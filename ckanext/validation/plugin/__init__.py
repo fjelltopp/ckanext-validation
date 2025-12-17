@@ -233,6 +233,10 @@ to create the database tables:
             del context['_validation_performed']
             return
 
+        # Skip if validation already handled in custom action
+        if context.get('_validation_handled_in_action'):
+            return
+
         if is_dataset:
             package_id = data_dict.get('id')
             if self.packages_to_skip.pop(package_id, None) or context.get('save', False):
