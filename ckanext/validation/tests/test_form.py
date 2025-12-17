@@ -2,6 +2,7 @@ import json
 import io
 from unittest import mock
 import datetime
+import re
 
 import pytest
 
@@ -12,6 +13,32 @@ from ckantoolkit.tests.helpers import (
 )
 
 from ckanext.validation.tests.helpers import VALID_CSV, INVALID_CSV
+
+
+def _get_csrf_token(response):
+    """Extract CSRF token from response"""
+    match = re.search(r'<meta name="_csrf_token" content="([^"]+)"', str(response.body))
+    if match:
+        return match.group(1)
+    return None
+
+
+def _post_resource_form(app, url, data, user=None):
+    """Helper to POST resource form with CSRF token"""
+    if user is None:
+        user = Sysadmin()
+    env = {"REMOTE_USER": user["name"].encode("ascii")}
+
+    # Get CSRF token from form page - this establishes the session
+    form_response = app.get(url=url, extra_environ=env)
+    csrf_token = _get_csrf_token(form_response)
+
+    # Add CSRF token to data
+    if csrf_token:
+        data["_csrf_token"] = csrf_token
+
+    # POST form - WebTest automatically maintains cookies/session from the GET
+    return app.post(url=url, extra_environ=env, data=data)
 
 
 def _new_resource_url(dataset_id):
@@ -71,12 +98,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -96,12 +118,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -121,13 +138,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -145,13 +156,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -177,13 +182,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -206,13 +205,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -234,13 +227,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -265,12 +252,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -302,13 +284,7 @@ class TestResourceValidationOptionsForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -343,13 +319,7 @@ class TestResourceValidationOptionsForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -372,13 +342,7 @@ class TestResourceValidationOnCreateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -397,13 +361,8 @@ class TestResourceValidationOnCreateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        response = app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        response = _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
+        
         assert "validation" in response.body
         assert "missing-cell" in response.body
         assert 'Row at position \\&#34;2\\&#34; has a missing cell in field \\&#34;d\\&#34; at position \\&#34;4\\&#34;' in response.body
@@ -424,13 +383,8 @@ class TestResourceValidationOnUpdateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
+        
         dataset = call_action("package_show", id=dataset["id"])
 
         assert dataset["resources"][0]["validation_status"] == "success"
@@ -449,14 +403,8 @@ class TestResourceValidationOnUpdateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
         dataset2 = call_action("package_show", id=dataset["id"])
-        response = app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        response = _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         assert "validation" in response.body
         assert "missing-cell" in response.body

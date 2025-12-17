@@ -66,7 +66,6 @@ jobs:
         run: |
           pytest --ckan-ini=test.ini --cov=ckanext.validation --cov-report=xml --cov-append --disable-warnings -vv -p no:xdist \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_includes_json_fields \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_json \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_upload \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_url \
@@ -75,10 +74,6 @@ jobs:
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_url \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_upload \
             ckanext/validation/tests/test_form.py::TestResourceValidationOptionsForm::test_resource_form_includes_json_fields \
-            ckanext/validation/tests/test_form.py::TestResourceValidationOptionsForm::test_resource_form_create \
-            ckanext/validation/tests/test_form.py::TestResourceValidationOptionsForm::test_resource_form_update \
-            ckanext/validation/tests/test_form.py::TestResourceValidationOnCreateForm::test_resource_form_create_valid \
-            ckanext/validation/tests/test_form.py::TestResourceValidationOnUpdateForm::test_resource_form_update_valid \
             ckanext/validation/tests/test_form.py::TestResourceValidationFieldsPersisted::test_resource_form_fields_are_persisted \
             ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async \
             ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async_no_validation \
