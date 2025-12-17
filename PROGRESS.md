@@ -68,19 +68,28 @@
 3. **Non-existent Hooks**: We can't rely on hooks that don't exist in CKAN's interface definition
 
 ## Testing Status
-- **Latest**: 11 failed, 15 passed (57% passing!)
-- **Progress**: 26 failed → 18 failed → 11 failed
+- **Latest**: 8 failed, 18 passed (69% passing!)
+- **Progress**: 26 failed → 18 failed → 11 failed → 8 failed
 - Test command: `act -j "CKAN" -W .github/workflows/build_ckan.yml --artifact-server-path /tmp/artifacts`
 
-### Batch 3 Changes
-- Fixed double validation issue: Added `_validation_handled_in_action` flag to prevent hooks from validating when custom action already did
-- Fixed resource_update validation logic: Now matches before_update hook logic for checking uploads
-- Updated after_update to check for `_validation_handled_in_action` flag
+### Batch 3 Changes - Double Validation Fix
+**Problem**: Validation called twice (custom action + hooks)
 
-### Remaining 11 Failures
-1. **test_interfaces update tests (2)**: May be fixed by flag addition - need to retest
-2. **test_logic validation tests (2)**: validation not triggered when creating datasets with resources via factories
-3. **test_plugin package tests (7)**: validation not triggered for package_create/package_update with resources
+**Solution**: Use plugin class variable `resources_validated_in_action` with proper timing:
+1. Check if validation needed
+2. **Mark resource BEFORE calling up_func** (critical timing!)
+3. Call up_func (hooks see mark and skip)
+4. Trigger validation
+
+**Files Modified**:
+- `logic.py`: Mark resources before up_func in both resource_create and resource_update
+- `plugin/__init__.py`: Check resources_validated_in_action in after_update hook, skip if marked
+
+### Remaining Failures (Need Testing)
+1. **test_interfaces update (2)**: Should be fixed by timing correction
+2. **test_logic validation (2)**: Package create not triggering validation
+3. **test_plugin package (7)**: Package create/update not triggering validation
+4. **test_plugin upload (1)**: resource_update with upload not triggering
 
 ## Latest Changes (Batch 2 - Revised Approach)
 
