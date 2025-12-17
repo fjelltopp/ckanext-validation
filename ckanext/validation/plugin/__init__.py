@@ -159,6 +159,11 @@ to create the database tables:
         if not is_dataset:
             context["_resource_create_call"] = True
             return self._process_schema_fields(data_dict)
+        else:
+            # Process schema fields for each resource in the dataset
+            resources = data_dict.get(u'resources', [])
+            for i, resource in enumerate(resources):
+                resources[i] = self._process_schema_fields(resource)
 
     def after_create(self, context, data_dict):
 
