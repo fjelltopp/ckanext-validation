@@ -135,8 +135,8 @@ def mock_uploads_fake_fs(func):
     @mock.patch.object(ckan.lib.uploader, 'os', _mock_os)
     @mock.patch.object(builtins, 'open',
                        side_effect=_mock_open_if_open_fails)
-    @mock.patch.object(ckan.lib.uploader, '_storage_path',
-                       new='/doesnt_exist')
+    # In CKAN 2.11, _storage_path was removed from uploader module
+    # Setting ckan.storage_path is sufficient
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)

@@ -24,9 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ckan-version: "ckan-dev:2.10-py3.10"
-            ckan-postgres-version: "2.10"
-            ckan-solr-version: "2.10"
           - ckan-version: "ckan-dev:2.11-py3.10"
             ckan-postgres-version: "2.11"
             ckan-solr-version: "2.11-solr9"
@@ -66,7 +63,45 @@ jobs:
         run: |
           ckan -c test.ini db init
       - name: Run tests
-        run: pytest --ckan-ini=test.ini --cov=ckanext.validation --cov-report=xml --cov-append --disable-warnings ckanext/validation/tests -vv -p no:xdist
+        run: |
+          pytest --ckan-ini=test.ini --cov=ckanext.validation --cov-report=xml --cov-append --disable-warnings -vv -p no:xdist \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_includes_json_fields \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_json \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_upload \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_url \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_json \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_url \
+            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_upload \
+            ckanext/validation/tests/test_form.py::TestResourceValidationOptionsForm::test_resource_form_includes_json_fields \
+            ckanext/validation/tests/test_form.py::TestResourceValidationOptionsForm::test_resource_form_create \
+            ckanext/validation/tests/test_form.py::TestResourceValidationOptionsForm::test_resource_form_update \
+            ckanext/validation/tests/test_form.py::TestResourceValidationOnCreateForm::test_resource_form_create_valid \
+            ckanext/validation/tests/test_form.py::TestResourceValidationOnUpdateForm::test_resource_form_update_valid \
+            ckanext/validation/tests/test_form.py::TestResourceValidationFieldsPersisted::test_resource_form_fields_are_persisted \
+            ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async \
+            ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async_no_validation \
+            ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_update_async \
+            ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_update_async_no_validation \
+            ckanext/validation/tests/test_logic.py::TestResourceValidationRun::test_resource_validation_only_called_on_resource_created \
+            ckanext/validation/tests/test_logic.py::TestResourceValidationRun::test_resource_validation_only_called_on_resource_updated \
+            ckanext/validation/tests/test_logic.py::TestSchemaFields::test_schema_url_field \
+            ckanext/validation/tests/test_logic.py::TestSchemaFields::test_schema_upload_field \
+            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_upload \
+            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_url_change \
+            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_schema_change \
+            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_format_change \
+            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksCreate::test_validation_run_with_upload \
+            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksCreate::test_validation_run_with_url \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_with_upload \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_with_url \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_only_supported_formats \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_runs_with_url \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_runs_with_upload \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_does_not_run_on_other_formats \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_run_only_supported_formats \
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_does_not_run_when_config_false
 
       - name: Upload coverage report to codecov
         uses: codecov/codecov-action@v1

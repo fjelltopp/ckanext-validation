@@ -277,7 +277,7 @@ class TestResourceSchemaForm(object):
         assert dataset["resources"][0]["schema"] == value
 
 
-@pytest.mark.usefixtures("clean_db", "validation_setup")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "with_plugins")
 class TestResourceValidationOptionsForm(object):
     def test_resource_form_includes_json_fields(self, app):
         dataset = Dataset()
@@ -356,7 +356,7 @@ class TestResourceValidationOptionsForm(object):
         assert dataset["resources"][0]["validation_options"] == value
 
 
-@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads", "with_plugins")
 @pytest.mark.ckan_config("ckanext.validation.run_on_create_sync", True)
 class TestResourceValidationOnCreateForm(object):
 
@@ -409,7 +409,7 @@ class TestResourceValidationOnCreateForm(object):
         assert 'Row at position \\&#34;2\\&#34; has a missing cell in field \\&#34;d\\&#34; at position \\&#34;4\\&#34;' in response.body
         assert "This row has less values compared to the header row" in response.body
 
-@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads", "with_plugins")
 @pytest.mark.ckan_config("ckanext.validation.run_on_update_sync", True)
 class TestResourceValidationOnUpdateForm(object):
 
@@ -463,7 +463,7 @@ class TestResourceValidationOnUpdateForm(object):
         assert "This row has less values compared to the header row" in response.body
 
 
-@pytest.mark.usefixtures("clean_db", "validation_setup")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "with_plugins")
 class TestResourceValidationFieldsPersisted(object):
     @classmethod
     def setup_class(cls):
