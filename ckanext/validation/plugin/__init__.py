@@ -310,6 +310,19 @@ to create the database tables:
 
     # IPackageController
 
+    def before_dataset_update(self, context, current, resource):
+        """Process schema fields for resources when package is updated.
+        
+        This hook is called when resources are added/updated via package_update,
+        which happens when using web forms in CKAN 2.11+
+        """
+        # Process schema fields for all resources in the updated package
+        resources = resource.get(u'resources', [])
+        for i, res in enumerate(resources):
+            resources[i] = self._process_schema_fields(res)
+        
+        return resource
+
     def before_index(self, index_dict):
 
         res_status = []
