@@ -139,7 +139,28 @@ to create the database tables:
             return
 
         if is_dataset:
-            for resource in data_dict.get(u'resources', []):
+            # Get the full package with complete resource info including IDs
+            # The data_dict may not have complete resource information yet
+            package_id = data_dict.get('id')
+            if package_id:
+                try:
+                    full_package = t.get_action('package_show')(
+                        {'ignore_auth': True},
+                        {'id': package_id}
+                    )
+                    resources = full_package.get('resources', [])
+                except Exception:
+                    # Fall back to data_dict resources if package_show fails
+                    resources = data_dict.get(u'resources', [])
+            else:
+                resources = data_dict.get(u'resources', [])
+
+            for resource in resources:
+                # Skip if already validated in custom action
+                resource_id = resource.get(u'id')
+                if resource_id and resource_id in self.resources_validated_in_action:
+                    self.resources_validated_in_action.pop(resource_id, None)
+                    continue
                 self._handle_validation_for_resource(context, resource)
         else:
             # This is a resource. Resources don't need to be handled here
@@ -155,6 +176,11 @@ to create the database tables:
             or data_dict.get(u'type') == u'dataset')
 
     def _handle_validation_for_resource(self, context, resource):
+        # Ensure resource has an ID (required for validation)
+        if not resource.get(u'id'):
+            log.debug('Resource does not have ID yet, skipping validation')
+            return
+
         needs_validation = False
         if ((
             # File uploaded
@@ -172,10 +198,14 @@ to create the database tables:
 
             for plugin in p.PluginImplementations(IDataValidation):
                 if not plugin.can_validate(context, resource):
-                    log.debug('Skipping validation for resource %s', resource['id'])
+                    log.debug('Skipping validation for resource %s', resource.get('id'))
                     return
 
-            _run_async_validation(resource[u'id'])
+            try:
+                _run_async_validation(resource[u'id'])
+            except Exception as e:
+                log.error('Error triggering async validation for resource %s: %s',
+                         resource.get('id'), str(e))
 
     def before_update(self, context, current_resource, updated_resource):
 
