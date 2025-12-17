@@ -1,10 +1,8 @@
 # encoding: utf-8
 
 import logging
-import cgi
 import json
 
-from werkzeug.datastructures import FileStorage as FlaskFileStorage
 import ckan.plugins as p
 import ckantoolkit as t
 
@@ -33,12 +31,12 @@ from ckanext.validation.validators import (
 from ckanext.validation.utils import (
     get_create_mode_from_config,
     get_update_mode_from_config,
+    process_schema_fields,
 )
 from ckanext.validation.interfaces import IDataValidation
 from ckanext.validation import blueprints, cli
 
 
-ALLOWED_UPLOAD_TYPES = (cgi.FieldStorage, FlaskFileStorage)
 log = logging.getLogger(__name__)
 
 
@@ -120,50 +118,17 @@ to create the database tables:
     resources_to_validate = {}
     packages_to_skip = {}
 
-    def _process_schema_fields(self, data_dict):
-        u'''
-        Normalize the different ways of providing the `schema` field
-
-        1. If `schema_upload` is provided and it's a valid file, the contents
-           are read into `schema`.
-        2. If `schema_url` is provided and looks like a valid URL, it's copied
-           to `schema`
-        3. If `schema_json` is provided, it's copied to `schema`.
-
-        All the 3 `schema_*` fields are removed from the data_dict.
-        Note that the data_dict still needs to pass validation
-        '''
-
-        schema_upload = data_dict.pop(u'schema_upload', None)
-        schema_url = data_dict.pop(u'schema_url', None)
-        schema_json = data_dict.pop(u'schema_json', None)
-        if isinstance(schema_upload, ALLOWED_UPLOAD_TYPES):
-            uploaded_file = _get_underlying_file(schema_upload)
-            data_dict[u'schema'] = uploaded_file.read()
-            if isinstance(data_dict["schema"], (bytes, bytearray)):
-                data_dict["schema"] = data_dict["schema"].decode()
-        elif schema_url:
-
-            if (not isinstance(schema_url, str) or
-                    not schema_url.lower()[:4] == u'http'):
-                raise t.ValidationError({u'schema_url': 'Must be a valid URL'})
-            data_dict[u'schema'] = schema_url
-        elif schema_json:
-            data_dict[u'schema'] = schema_json
-
-        return data_dict
-
     def before_create(self, context, data_dict):
 
         is_dataset = self._data_dict_is_dataset(data_dict)
         if not is_dataset:
             context["_resource_create_call"] = True
-            return self._process_schema_fields(data_dict)
+            return process_schema_fields(data_dict)
         else:
             # Process schema fields for each resource in the dataset
             resources = data_dict.get(u'resources', [])
             for i, resource in enumerate(resources):
-                resources[i] = self._process_schema_fields(resource)
+                resources[i] = process_schema_fields(resource)
 
     def after_create(self, context, data_dict):
 
@@ -213,7 +178,7 @@ to create the database tables:
 
     def before_update(self, context, current_resource, updated_resource):
 
-        updated_resource = self._process_schema_fields(updated_resource)
+        updated_resource = process_schema_fields(updated_resource)
 
         # the call originates from a resource API, so don't validate the entire package
         package_id = updated_resource.get('package_id')
@@ -310,19 +275,6 @@ to create the database tables:
 
     # IPackageController
 
-    def before_dataset_update(self, context, current, updated):
-        """Process schema fields for resources when package is updated.
-        
-        This hook is called when resources are added/updated via package_update,
-        which happens when using web forms in CKAN 2.11+
-        """
-        # Process schema fields for all resources in the updated package
-        resources = updated.get(u'resources', [])
-        for i, res in enumerate(resources):
-            resources[i] = self._process_schema_fields(res)
-        
-        return updated
-
     def before_index(self, index_dict):
 
         res_status = []
@@ -356,9 +308,3 @@ def _run_async_validation(resource_id):
         log.warning(
             u'Could not run validation for resource %s: %s',
                 resource_id, e)
-
-def _get_underlying_file(wrapper):
-    if isinstance(wrapper, FlaskFileStorage):
-        return wrapper.stream
-    return wrapper.file
-

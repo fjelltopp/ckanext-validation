@@ -447,6 +447,10 @@ def resource_create(up_func, context, data_dict):
 
     '''
 
+    # Process schema fields before anything else
+    from ckanext.validation.utils import process_schema_fields
+    data_dict = process_schema_fields(data_dict)
+
     if get_create_mode_from_config() != 'sync':
         return up_func(context, data_dict)
 
@@ -552,6 +556,10 @@ def resource_update(up_func, context, data_dict):
     points that will allow a better approach.
 
     '''
+
+    # Process schema fields before anything else
+    from ckanext.validation.utils import process_schema_fields
+    data_dict = process_schema_fields(data_dict)
 
     if get_update_mode_from_config() != 'sync':
         return up_func(context, data_dict)
