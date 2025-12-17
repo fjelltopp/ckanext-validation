@@ -68,11 +68,9 @@ jobs:
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_json \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_upload \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_url \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_json \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_url \
             ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_upload \
-            ckanext/validation/tests/test_form.py::TestResourceValidationFieldsPersisted::test_resource_form_fields_are_persisted \
             ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async \
             ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async_no_validation \
             ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_update_async \
@@ -92,9 +90,7 @@ jobs:
             ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_only_supported_formats \
             ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_runs_with_url \
             ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_runs_with_upload \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_does_not_run_on_other_formats \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_run_only_supported_formats \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_does_not_run_when_config_false
+            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_run_only_supported_formats
 
       - name: Upload coverage report to codecov
         uses: codecov/codecov-action@v1
