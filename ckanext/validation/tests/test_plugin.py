@@ -192,49 +192,46 @@ class TestPackageControllerHooksCreate(object):
     @mock.patch("ckanext.validation.logic.enqueue_job")
     def test_validation_run_with_upload(self, mock_enqueue):
 
-        resource = {"id": "test-resource-id", "format": "CSV", "url_type": "upload"}
-        factories.Dataset(resources=[resource])
+        resource = {"format": "CSV", "url_type": "upload"}
+        dataset = factories.Dataset(resources=[resource])
 
         assert mock_enqueue.call_count == 1
 
         assert mock_enqueue.call_args[0][0] == run_validation_job
-        assert mock_enqueue.call_args[0][1][0]["id"] == resource["id"]
+        assert mock_enqueue.call_args[0][1][0]["id"] == dataset["resources"][0]["id"]
 
     @mock.patch("ckanext.validation.logic.enqueue_job")
     def test_validation_run_with_url(self, mock_enqueue):
 
         resource = {
-            "id": "test-resource-id",
             "format": "CSV",
             "url": "http://some.data",
         }
-        factories.Dataset(resources=[resource])
+        dataset = factories.Dataset(resources=[resource])
 
         assert mock_enqueue.call_count == 1
 
         assert mock_enqueue.call_args[0][0] == run_validation_job
-        assert mock_enqueue.call_args[0][1][0]["id"] == resource["id"]
+        assert mock_enqueue.call_args[0][1][0]["id"] == dataset["resources"][0]["id"]
 
     @mock.patch("ckanext.validation.logic.enqueue_job")
     def test_validation_run_only_supported_formats(self, mock_enqueue):
 
         resource1 = {
-            "id": "test-resource-id-1",
             "format": "CSV",
             "url": "http://some.data",
         }
         resource2 = {
-            "id": "test-resource-id-2",
             "format": "PDF",
             "url": "http://some.doc",
         }
 
-        factories.Dataset(resources=[resource1, resource2])
+        dataset = factories.Dataset(resources=[resource1, resource2])
 
         assert mock_enqueue.call_count == 1
 
         assert mock_enqueue.call_args[0][0] == run_validation_job
-        assert mock_enqueue.call_args[0][1][0]["id"] == resource1["id"]
+        assert mock_enqueue.call_args[0][1][0]["id"] == dataset["resources"][0]["id"]
 
 
 @pytest.mark.usefixtures("clean_db", "validation_setup", "with_plugins")
@@ -245,11 +242,11 @@ class TestPackageControllerHooksUpdate(object):
     def test_validation_runs_with_url(self, mock_enqueue):
 
         resource = {
-            "id": "test-resource-id",
             "format": "CSV",
             "url": "http://some.data",
         }
-        dataset = factories.Dataset(resources=[resource], id="myid")
+        dataset = factories.Dataset(resources=[resource])
+        resource_id = dataset["resources"][0]["id"]
 
         mock_enqueue.assert_not_called()
 
@@ -260,14 +257,15 @@ class TestPackageControllerHooksUpdate(object):
         assert mock_enqueue.call_count == 1
 
         assert mock_enqueue.call_args[0][0] == run_validation_job
-        assert mock_enqueue.call_args[0][1][0]["id"] == resource["id"]
+        assert mock_enqueue.call_args[0][1][0]["id"] == resource_id
 
     @pytest.mark.ckan_config("ckanext.validation.run_on_create_async", False)
     @mock.patch("ckanext.validation.logic.enqueue_job")
     def test_validation_runs_with_upload(self, mock_enqueue):
 
-        resource = {"id": "test-resource-id", "format": "CSV", "url_type": "upload"}
+        resource = {"format": "CSV", "url_type": "upload"}
         dataset = factories.Dataset(resources=[resource])
+        resource_id = dataset["resources"][0]["id"]
 
         mock_enqueue.assert_not_called()
 
@@ -278,13 +276,13 @@ class TestPackageControllerHooksUpdate(object):
         assert mock_enqueue.call_count == 1
 
         assert mock_enqueue.call_args[0][0] == run_validation_job
-        assert mock_enqueue.call_args[0][1][0]["id"] == resource["id"]
+        assert mock_enqueue.call_args[0][1][0]["id"] == resource_id
 
     @pytest.mark.ckan_config("ckanext.validation.run_on_create_async", False)
     @mock.patch("ckanext.validation.logic.enqueue_job")
     def test_validation_does_not_run_on_other_formats(self, mock_enqueue):
 
-        resource = {"id": "test-resource-id", "format": "PDF", "url": "http://some.doc"}
+        resource = {"format": "PDF", "url": "http://some.doc"}
         dataset = factories.Dataset(resources=[resource])
 
         mock_enqueue.assert_not_called()
@@ -300,17 +298,16 @@ class TestPackageControllerHooksUpdate(object):
     def test_validation_run_only_supported_formats(self, mock_enqueue):
 
         resource1 = {
-            "id": "test-resource-id-1",
             "format": "CSV",
             "url": "http://some.data",
         }
         resource2 = {
-            "id": "test-resource-id-2",
             "format": "PDF",
             "url": "http://some.doc",
         }
 
         dataset = factories.Dataset(resources=[resource1, resource2])
+        resource1_id = dataset["resources"][0]["id"]
 
         mock_enqueue.assert_not_called()
 
@@ -321,7 +318,7 @@ class TestPackageControllerHooksUpdate(object):
         assert mock_enqueue.call_count == 1
 
         assert mock_enqueue.call_args[0][0] == run_validation_job
-        assert mock_enqueue.call_args[0][1][0]["id"] == resource1["id"]
+        assert mock_enqueue.call_args[0][1][0]["id"] == resource1_id
 
     @pytest.mark.ckan_config("ckanext.validation.run_on_create_async", False)
     @pytest.mark.ckan_config("ckanext.validation.run_on_update_async", False)
@@ -329,7 +326,6 @@ class TestPackageControllerHooksUpdate(object):
     def test_validation_does_not_run_when_config_false(self, mock_enqueue):
 
         resource = {
-            "id": "test-resource-id",
             "format": "CSV",
             "url": "http://some.data",
         }
