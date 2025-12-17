@@ -239,6 +239,18 @@ to create the database tables:
                 # Either we're updating an individual resource,
                 # or we're updating the package metadata via the web form;
                 # in both cases, we don't need to validate every resource.
+                # However, we still need to validate resources marked in resources_to_validate
+                for resource in data_dict.get(u'resources', []):
+                    if resource[u'id'] in self.resources_to_validate:
+                        should_validate = True
+                        for plugin in p.PluginImplementations(IDataValidation):
+                            if not plugin.can_validate(context, resource):
+                                log.debug('Skipping validation for resource %s', resource['id'])
+                                should_validate = False
+                                break
+                        del self.resources_to_validate[resource[u'id']]
+                        if should_validate:
+                            _run_async_validation(resource[u'id'])
                 return
 
             if context.pop("_resource_create_call", False):

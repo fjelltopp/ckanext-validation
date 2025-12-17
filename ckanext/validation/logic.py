@@ -452,7 +452,28 @@ def resource_create(up_func, context, data_dict):
     data_dict = process_schema_fields(data_dict)
 
     if get_create_mode_from_config() != 'sync':
-        return up_func(context, data_dict)
+        # Set flag so after_update hook knows this is a resource_create call
+        context['_resource_create_call'] = True
+        result = up_func(context, data_dict)
+
+        # In async mode, we need to trigger validation ourselves since
+        # the hook flow may not work reliably in CKAN 2.11
+        from ckanext.validation.interfaces import IDataValidation
+        should_validate = True
+        for plugin in plugins.PluginImplementations(IDataValidation):
+            if not plugin.can_validate(context, result):
+                log.debug('Skipping validation for resource {}'.format(result['id']))
+                should_validate = False
+                break
+
+        if should_validate:
+            from ckanext.validation.plugin import _run_async_validation
+            # Check if resource meets validation criteria
+            if ((result.get(u'url_type') == u'upload' or result.get(u'url')) and
+                result.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS):
+                _run_async_validation(result['id'])
+
+        return result
 
     model = context['model']
 
@@ -562,7 +583,49 @@ def resource_update(up_func, context, data_dict):
     data_dict = process_schema_fields(data_dict)
 
     if get_update_mode_from_config() != 'sync':
-        return up_func(context, data_dict)
+        # Get current resource to compare
+        try:
+            current_resource = t.get_action('resource_show')(
+                context={'ignore_auth': True},
+                data_dict={'id': data_dict['id']}
+            )
+        except Exception:
+            current_resource = {}
+
+        result = up_func(context, data_dict)
+
+        # Check if validation is needed (similar logic to before_update hook)
+        from ckanext.validation.interfaces import IDataValidation
+        needs_validation = False
+        if ((
+            # New file uploaded
+            data_dict.get(u'upload') or
+            # External URL changed
+            result.get(u'url') != current_resource.get(u'url') or
+            # Schema changed
+            (result.get(u'schema') != current_resource.get(u'schema')) or
+            # Format changed
+            (result.get(u'format', u'').lower() !=
+             current_resource.get(u'format', u'').lower())
+            ) and (
+            # Make sure format is supported
+            result.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS
+                )):
+            needs_validation = True
+
+        if needs_validation:
+            should_validate = True
+            for plugin in plugins.PluginImplementations(IDataValidation):
+                if not plugin.can_validate(context, result):
+                    log.debug('Skipping validation for resource {}'.format(result['id']))
+                    should_validate = False
+                    break
+
+            if should_validate:
+                from ckanext.validation.plugin import _run_async_validation
+                _run_async_validation(result['id'])
+
+        return result
 
     model = context['model']
     id = t.get_or_bust(data_dict, "id")

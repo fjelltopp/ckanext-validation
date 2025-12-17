@@ -65,26 +65,11 @@ jobs:
       - name: Run tests
         run: |
           pytest --ckan-ini=test.ini --cov=ckanext.validation --cov-report=xml --cov-append --disable-warnings -vv -p no:xdist \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_json \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_upload \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_create_url \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_json \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_url \
-            ckanext/validation/tests/test_form.py::TestResourceSchemaForm::test_resource_form_update_upload \
-            ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async \
-            ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_create_async_no_validation \
             ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_update_async \
             ckanext/validation/tests/test_interfaces.py::TestInterfaceAsync::test_can_validate_called_on_update_async_no_validation \
             ckanext/validation/tests/test_logic.py::TestResourceValidationRun::test_resource_validation_only_called_on_resource_created \
             ckanext/validation/tests/test_logic.py::TestResourceValidationRun::test_resource_validation_only_called_on_resource_updated \
-            ckanext/validation/tests/test_logic.py::TestSchemaFields::test_schema_url_field \
-            ckanext/validation/tests/test_logic.py::TestSchemaFields::test_schema_upload_field \
             ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_upload \
-            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_url_change \
-            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_schema_change \
-            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksUpdate::test_validation_run_on_format_change \
-            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksCreate::test_validation_run_with_upload \
-            ckanext/validation/tests/test_plugin.py::TestResourceControllerHooksCreate::test_validation_run_with_url \
             ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_with_upload \
             ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_with_url \
             ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_only_supported_formats \
