@@ -117,6 +117,7 @@ to create the database tables:
 
     resources_to_validate = {}
     packages_to_skip = {}
+    resources_validated_in_action = {}
 
     def before_create(self, context, data_dict):
 
@@ -245,16 +246,23 @@ to create the database tables:
                 # in both cases, we don't need to validate every resource.
                 # However, we still need to validate resources marked in resources_to_validate
                 for resource in data_dict.get(u'resources', []):
-                    if resource[u'id'] in self.resources_to_validate:
+                    resource_id = resource[u'id']
+                    # Skip if already validated in custom action
+                    if resource_id in self.resources_validated_in_action:
+                        self.resources_validated_in_action.pop(resource_id, None)
+                        self.resources_to_validate.pop(resource_id, None)
+                        continue
+
+                    if resource_id in self.resources_to_validate:
                         should_validate = True
                         for plugin in p.PluginImplementations(IDataValidation):
                             if not plugin.can_validate(context, resource):
                                 log.debug('Skipping validation for resource %s', resource['id'])
                                 should_validate = False
                                 break
-                        del self.resources_to_validate[resource[u'id']]
+                        del self.resources_to_validate[resource_id]
                         if should_validate:
-                            _run_async_validation(resource[u'id'])
+                            _run_async_validation(resource_id)
                 return
 
             if context.pop("_resource_create_call", False):

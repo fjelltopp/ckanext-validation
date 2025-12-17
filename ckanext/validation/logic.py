@@ -452,28 +452,42 @@ def resource_create(up_func, context, data_dict):
     data_dict = process_schema_fields(data_dict)
 
     if get_create_mode_from_config() != 'sync':
-        # Set flag so after_update hook knows this is a resource_create call
-        context['_resource_create_call'] = True
-        result = up_func(context, data_dict)
+        # Check if resource meets validation criteria
+        needs_validation = (
+            (data_dict.get(u'url_type') == u'upload' or data_dict.get(u'url')) and
+            data_dict.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS
+        )
 
-        # In async mode, we need to trigger validation ourselves since
-        # the hook flow may not work reliably in CKAN 2.11
-        from ckanext.validation.interfaces import IDataValidation
-        should_validate = True
-        for plugin in plugins.PluginImplementations(IDataValidation):
-            if not plugin.can_validate(context, result):
-                log.debug('Skipping validation for resource {}'.format(result['id']))
-                should_validate = False
-                break
+        if needs_validation:
+            from ckanext.validation.interfaces import IDataValidation
+            from ckanext.validation.plugin import ValidationPlugin
+            should_validate = True
 
-        if should_validate:
-            from ckanext.validation.plugin import _run_async_validation
-            # Check if resource meets validation criteria
-            if ((result.get(u'url_type') == u'upload' or result.get(u'url')) and
-                result.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS):
+            for plugin in plugins.PluginImplementations(IDataValidation):
+                if not plugin.can_validate(context, data_dict):
+                    log.debug('Skipping validation for resource')
+                    should_validate = False
+                    break
+
+            if should_validate:
+                # Call upstream to create the resource first
+                context['_resource_create_call'] = True
+                result = up_func(context, data_dict)
+
+                # Mark as validated BEFORE triggering validation
+                for plugin_instance in plugins.PluginImplementations(plugins.IResourceController):
+                    if isinstance(plugin_instance, ValidationPlugin):
+                        plugin_instance.resources_validated_in_action[result['id']] = True
+
+                # Then trigger validation
+                from ckanext.validation.plugin import _run_async_validation
                 _run_async_validation(result['id'])
 
-        return result
+                return result
+
+        # If no validation needed, just call upstream
+        context['_resource_create_call'] = True
+        return up_func(context, data_dict)
 
     model = context['model']
 
@@ -592,44 +606,58 @@ def resource_update(up_func, context, data_dict):
         except Exception:
             current_resource = {}
 
-        # Set flag to prevent hooks from also triggering validation
-        context['_validation_handled_in_action'] = True
-
-        result = up_func(context, data_dict)
-
-        # Check if validation is needed (matches before_update hook logic)
+        # Check if validation will be needed BEFORE calling upstream
+        # This way we can validate first, then mark it to prevent hook from double-validating
         from ckanext.validation.interfaces import IDataValidation
+        from ckanext.validation.plugin import ValidationPlugin
         needs_validation = False
 
+        # Note: we check data_dict fields here since result doesn't exist yet
         if ((
             # New file uploaded (check data_dict for upload field)
             data_dict.get(u'upload') or
-            # External URL changed
-            result.get(u'url') != current_resource.get(u'url') or
+            # External URL changed (compare data_dict to current)
+            data_dict.get(u'url') != current_resource.get(u'url') or
             # Schema changed
-            (result.get(u'schema') != current_resource.get(u'schema')) or
+            (data_dict.get(u'schema') != current_resource.get(u'schema')) or
             # Format changed
-            (result.get(u'format', u'').lower() !=
+            (data_dict.get(u'format', u'').lower() !=
              current_resource.get(u'format', u'').lower())
             ) and (
             # Make sure format is supported
-            result.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS
+            data_dict.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS
                 )):
             needs_validation = True
 
         if needs_validation:
             should_validate = True
+            # Use current_resource data for can_validate since result doesn't exist yet
+            check_resource = dict(current_resource)
+            check_resource.update(data_dict)
+
             for plugin in plugins.PluginImplementations(IDataValidation):
-                if not plugin.can_validate(context, result):
-                    log.debug('Skipping validation for resource {}'.format(result['id']))
+                if not plugin.can_validate(context, check_resource):
+                    log.debug('Skipping validation for resource {}'.format(check_resource['id']))
                     should_validate = False
                     break
 
             if should_validate:
+                # Mark resource as validated BEFORE calling up_func
+                for plugin_instance in plugins.PluginImplementations(plugins.IResourceController):
+                    if isinstance(plugin_instance, ValidationPlugin):
+                        plugin_instance.resources_validated_in_action[data_dict['id']] = True
+
+                # Call upstream first to update the resource
+                result = up_func(context, data_dict)
+
+                # Then trigger validation
                 from ckanext.validation.plugin import _run_async_validation
                 _run_async_validation(result['id'])
 
-        return result
+                return result
+
+        # If no validation needed, just call upstream
+        return up_func(context, data_dict)
 
     model = context['model']
     id = t.get_or_bust(data_dict, "id")

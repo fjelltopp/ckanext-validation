@@ -72,6 +72,16 @@
 - **Progress**: 26 failed → 18 failed → 11 failed
 - Test command: `act -j "CKAN" -W .github/workflows/build_ckan.yml --artifact-server-path /tmp/artifacts`
 
+### Batch 3 Changes
+- Fixed double validation issue: Added `_validation_handled_in_action` flag to prevent hooks from validating when custom action already did
+- Fixed resource_update validation logic: Now matches before_update hook logic for checking uploads
+- Updated after_update to check for `_validation_handled_in_action` flag
+
+### Remaining 11 Failures
+1. **test_interfaces update tests (2)**: May be fixed by flag addition - need to retest
+2. **test_logic validation tests (2)**: validation not triggered when creating datasets with resources via factories
+3. **test_plugin package tests (7)**: validation not triggered for package_create/package_update with resources
+
 ## Latest Changes (Batch 2 - Revised Approach)
 
 **Root Cause Identified**:
