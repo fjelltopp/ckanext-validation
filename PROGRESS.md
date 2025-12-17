@@ -85,11 +85,50 @@
 - `logic.py`: Mark resources before up_func in both resource_create and resource_update
 - `plugin/__init__.py`: Check resources_validated_in_action in after_update hook, skip if marked
 
-### Remaining Failures (Need Testing)
-1. **test_interfaces update (2)**: Should be fixed by timing correction
-2. **test_logic validation (2)**: Package create not triggering validation
-3. **test_plugin package (7)**: Package create/update not triggering validation
-4. **test_plugin upload (1)**: resource_update with upload not triggering
+### Batch 4 Changes - Package Create/Update Fix (IN PROGRESS)
+**Problem**: Validation not triggered when creating datasets with resources
+
+**Root Cause Analysis**:
+- Resources in data_dict passed to after_create don't have IDs yet
+- When `factories.Dataset(resources=[...])` is called, it triggers `package_create` which calls `after_create` hook
+- Tests expect validation to be triggered once for each resource with supported format
+
+**Attempts Made**:
+
+1. **Attempt 1**: Use package_show to fetch full package
+   - **Result**: Still 8 failed (no improvement)
+   - **Issue**: May be introducing unnecessary API call overhead
+
+2. **Attempt 2**: Get resources from context['package'].resources (model objects)
+   - **Result**: Still 8 failed (no improvement)
+   - **Rationale**: Model objects should have complete resource data including IDs
+   - **Status**: Need to add debug logging to understand what's happening
+
+**Current Investigation**:
+- Added debug logging to after_create hook in plugin/__init__.py (lines 137-179):
+  - Log whether after_create is being called
+  - Log whether it's identifying as a dataset
+  - Log whether context['package'] exists and has resources
+  - Log resource IDs and validation status
+  - Log when resources are skipped vs validated
+- Need to run tests with debug logging to understand the flow
+
+### Remaining 8 Failures
+All related to package create/update with resources:
+
+**test_logic.py (2 tests)**:
+- test_resource_validation_only_called_on_resource_created
+- test_resource_validation_only_called_on_resource_updated
+
+**test_plugin.py - TestPackageControllerHooksCreate (3 tests)**:
+- test_validation_run_with_upload
+- test_validation_run_with_url
+- test_validation_run_only_supported_formats
+
+**test_plugin.py - TestPackageControllerHooksUpdate (3 tests)**:
+- test_validation_runs_with_url
+- test_validation_runs_with_upload
+- test_validation_run_only_supported_formats
 
 ## Latest Changes (Batch 2 - Revised Approach)
 
@@ -109,16 +148,34 @@
    - Fixed logic bug in early return validation check (was using `continue` incorrectly)
    - Now uses `should_validate` flag and `break` to properly handle `can_validate` results
 
-## Next Steps
+## Next Steps (Tomorrow)
 
-1. **Run full test suite** to verify all 18 remaining failures are now fixed
-2. **If tests pass**, commit changes with message describing the async validation fix
-3. **If tests still fail**, analyze remaining failures and continue debugging
+1. **Run tests with debug logging** to understand after_create flow:
+   ```bash
+   act -j "test" -W .github/workflows/test.yml --artifact-server-path /tmp/artifacts
+   ```
+   - Check if after_create is being called
+   - Verify it's identifying as dataset
+   - See if context['package'] exists
+   - Check if resources have IDs
+   - Understand why validation isn't being triggered
 
-## Expected Outcome
-All 26 tests should now pass:
-- test_form.py: 6 tests (fixed in batch 1)
-- test_logic.py schema tests: 2 tests (fixed in batch 1)
-- test_interfaces.py: 4 tests (fixed in batch 2)
-- test_logic.py validation tests: 2 tests (fixed in batch 2)
-- test_plugin.py: 12 tests (fixed in batch 2)
+2. **Analyze debug output** to identify the actual issue
+
+3. **Possible hypotheses to investigate**:
+   - after_create might not be called at all for package_create
+   - context['package'] might not exist or might not have resources attribute
+   - Resources might be getting marked as validated incorrectly
+   - _handle_validation_for_resource might be returning early
+
+4. **Alternative approaches if current approach doesn't work**:
+   - Check if we need to override package_create action instead of relying on hooks
+   - Investigate if there's a different hook that's more reliable for package creation
+   - Consider if the issue is with before_create instead of after_create
+
+## Current Status Summary
+- **Total tests**: 26
+- **Passing**: 18 (69%)
+- **Failing**: 8 (31%)
+- **Batches completed**: 3 (schema fields, async validation in actions, double validation fix)
+- **Current batch**: 4 (package create/update validation) - IN PROGRESS

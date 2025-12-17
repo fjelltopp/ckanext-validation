@@ -134,38 +134,49 @@ to create the database tables:
     def after_create(self, context, data_dict):
 
         is_dataset = self._data_dict_is_dataset(data_dict)
+        log.debug('after_create called: is_dataset=%s, has_package=%s',
+                  is_dataset, 'package' in context)
 
         if not get_create_mode_from_config() == u'async':
+            log.debug('after_create: create mode not async, returning')
             return
 
         if is_dataset:
-            # Get the full package with complete resource info including IDs
-            # The data_dict may not have complete resource information yet
-            package_id = data_dict.get('id')
-            if package_id:
-                try:
-                    full_package = t.get_action('package_show')(
-                        {'ignore_auth': True},
-                        {'id': package_id}
-                    )
-                    resources = full_package.get('resources', [])
-                except Exception:
-                    # Fall back to data_dict resources if package_show fails
-                    resources = data_dict.get(u'resources', [])
+            # Try to get resources from the context's package object first
+            # The package object should have the resources with IDs
+            resources = []
+            if 'package' in context and hasattr(context['package'], 'resources'):
+                # Get resources from the model package object
+                resources = [
+                    {
+                        'id': r.id,
+                        'url': r.url,
+                        'url_type': r.url_type,
+                        'format': r.format,
+                    }
+                    for r in context['package'].resources
+                ]
+                log.debug('after_create: got %d resources from context package', len(resources))
             else:
+                # Fall back to data_dict (may not have IDs)
                 resources = data_dict.get(u'resources', [])
+                log.debug('after_create: got %d resources from data_dict', len(resources))
 
             for resource in resources:
                 # Skip if already validated in custom action
                 resource_id = resource.get(u'id')
+                log.debug('after_create: checking resource %s, in_validated=%s',
+                         resource_id, resource_id in self.resources_validated_in_action if resource_id else False)
                 if resource_id and resource_id in self.resources_validated_in_action:
                     self.resources_validated_in_action.pop(resource_id, None)
+                    log.debug('after_create: skipping already validated resource %s', resource_id)
                     continue
                 self._handle_validation_for_resource(context, resource)
         else:
             # This is a resource. Resources don't need to be handled here
             # as there is always a previous `package_update` call that will
             # trigger the `before_update` and `after_update` hooks
+            log.debug('after_create: not a dataset, skipping')
             pass
 
     def _data_dict_is_dataset(self, data_dict):
