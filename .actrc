@@ -1,9 +1,0 @@
-# ACT configuration file for ckanext-validation
-# Use cached Docker images (don't force pull every time)
---pull=false
-
-# Reuse Docker containers for faster runs
---reuse
-
-# Show verbose output
---verbose
