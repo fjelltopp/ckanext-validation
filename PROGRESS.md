@@ -212,14 +212,44 @@ All related to package create/update with resources:
 
 **Results**: 6 out of 8 tests now passing! (75% → 92%)
 
-### Remaining 2 Failures
-**test_logic.py (2 tests)** - Still investigating:
-- test_resource_validation_only_called_on_resource_created
-- test_resource_validation_only_called_on_resource_updated
+### Batch 6 Changes - Fix Double/Triple Validation (1 of 2 tests fixed)
+**Problem**: Validation being called multiple times instead of once per operation
+
+**Root Causes**:
+- **test_resource_validation_only_called_on_resource_created**: Expected 1 call, got 2
+  - Custom resource_create action triggered validation
+  - after_dataset_update also triggered validation for the same resource
+- **test_resource_validation_only_called_on_resource_updated**: Expected 1 call, got 3
+  - Custom resource_update action triggered validation
+  - after_update (resource hook) triggered validation
+  - after_dataset_update (via packages_to_skip) also tried to validate
+
+**Solutions Applied**:
+1. **Fix for resource_create** (plugin/__init__.py lines 333-336):
+   - When `_resource_create_call` flag is set, after_dataset_update just returns
+   - Validation already handled by resource_create action, no duplication
+   - Result: test_resource_validation_only_called_on_resource_created now PASSES ✅
+
+2. **Partial fix for resource_update** (plugin/__init__.py lines 271-275):
+   - Added check for resources_validated_in_action in after_update
+   - Skips validation if already handled by custom resource_update action
+   - Cleans up both resources_validated_in_action and resources_to_validate
+   - Result: Still 3 calls instead of 1 (needs further investigation)
+
+**Files Modified**:
+- `ckanext/validation/plugin/__init__.py`:
+  - Modified after_dataset_update to skip validation when _resource_create_call is set
+  - Modified after_update to check resources_validated_in_action
+
+**Results**: 1 of 2 tests now passing! (92% → 96%)
+
+### Remaining 1 Failure
+**test_logic.py**:
+- test_resource_validation_only_called_on_resource_updated - Still getting 3 validation calls instead of 1
 
 ## Current Status Summary
 - **Total tests**: 26
-- **Passing**: 24 (92%)
-- **Failing**: 2 (8%)
-- **Batches completed**: 5 (schema fields, async validation in actions, double validation fix, package create/update validation, IPackageController hooks)
-- **Current batch**: 6 (fixing remaining 2 test_logic.py tests) - IN PROGRESS
+- **Passing**: 25 (96%)
+- **Failing**: 1 (4%)
+- **Batches completed**: 6 (schema fields, async validation in actions, double validation fix, package create/update validation, IPackageController hooks, partial fix for double validation)
+- **Current batch**: 7 (fixing remaining resource_update triple validation) - IN PROGRESS

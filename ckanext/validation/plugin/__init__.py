@@ -268,6 +268,12 @@ to create the database tables:
         # This is a resource update
         resource_id = data_dict[u'id']
 
+        # Skip if already validated in custom action
+        if resource_id in self.resources_validated_in_action:
+            self.resources_validated_in_action.pop(resource_id, None)
+            self.resources_to_validate.pop(resource_id, None)
+            return
+
         if resource_id in self.resources_to_validate:
             for plugin in p.PluginImplementations(IDataValidation):
                 if not plugin.can_validate(context, data_dict):
@@ -331,12 +337,9 @@ to create the database tables:
                 return
 
             if context.pop("_resource_create_call", False):
-                new_resource = data_dict["resources"][-1]
-                if new_resource:
-                    # This is part of a resource_create call, we only need to validate
-                    # the new resource being created
-                    self._handle_validation_for_resource(context, new_resource)
-                    return
+                # This is part of a resource_create call
+                # Validation is already handled in the resource_create action, so skip here
+                return
 
             # This is an actual package_update call
             # Validate all resources that can be validated
