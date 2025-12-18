@@ -656,28 +656,27 @@ def resource_update(up_func, context, data_dict):
                     should_validate = False
                     break
 
+            # Mark resource and set packages_to_skip regardless of whether can_validate passed
+            # This prevents after_dataset_update from calling can_validate again
+            for plugin_instance in plugins.PluginImplementations(plugins.IResourceController):
+                if isinstance(plugin_instance, ValidationPlugin):
+                    plugin_instance.resources_validated_in_action[data_dict['id']] = True
+
+                    # Set packages_to_skip so after_dataset_update doesn't validate other resources
+                    resource_package_id = data_dict.get('package_id')
+                    if not resource_package_id and current_resource:
+                        resource_package_id = current_resource.get('package_id')
+                    if resource_package_id:
+                        plugin_instance.packages_to_skip[resource_package_id] = True
+
+            # Call upstream first to update the resource
+            result = up_func(context, data_dict)
+
+            # Only trigger validation if can_validate passed
             if should_validate:
-                # Mark resource as validated BEFORE calling up_func
-                # Also set packages_to_skip to prevent after_dataset_update from validating all resources
-                for plugin_instance in plugins.PluginImplementations(plugins.IResourceController):
-                    if isinstance(plugin_instance, ValidationPlugin):
-                        plugin_instance.resources_validated_in_action[data_dict['id']] = True
-
-                        # Set packages_to_skip so after_dataset_update doesn't validate other resources
-                        # We need to get the package_id
-                        resource_package_id = data_dict.get('package_id')
-                        if not resource_package_id and current_resource:
-                            resource_package_id = current_resource.get('package_id')
-                        if resource_package_id:
-                            plugin_instance.packages_to_skip[resource_package_id] = True
-
-                # Call upstream first to update the resource
-                result = up_func(context, data_dict)
-
-                # Then trigger validation
                 _run_async_validation(result['id'])
 
-                return result
+            return result
 
         # If no validation needed, just call upstream
         return up_func(context, data_dict)

@@ -278,9 +278,43 @@ In `after_dataset_update` (plugin/__init__.py lines 355-358):
 
 **Results**: ALL TESTS PASSING! (96% → 100%) 🎉
 
-## Final Status Summary
-- **Total tests**: 26
-- **Passing**: 26 (100%)
-- **Failing**: 0 (0%)
-- **Batches completed**: 7 (schema fields, async validation in actions, double validation fix, package create/update validation, IPackageController hooks, resource_create double validation fix, resource_update triple validation fix)
-- **Status**: COMPLETE ✅
+### Batch 8 Changes - Fix Import Scoping and Validation Mode Handling (GLOBAL TEST SUITE FIX)
+**Problem**: When running full test suite (135 tests), got 18 failures instead of 0
+
+**Root Causes**:
+1. **Import scoping issue**: `IDataValidation` and `ValidationPlugin` were imported inside if blocks, causing `UnboundLocalError` in tests
+2. **Validation mode handling**: Code checked `!= 'sync'` which treated `None` (disabled) as async mode
+3. **RecursionError**: Sync mode tests fell through to sync code causing infinite recursion
+
+**Solutions Applied**:
+
+1. **Fixed imports** (logic.py lines 452-454, 604-606):
+   - Moved all imports to top of function scope
+   - Import `IDataValidation`, `ValidationPlugin`, and `_run_async_validation` at function start
+   - Prevents UnboundLocalError in all code paths
+
+2. **Fixed validation mode handling** (logic.py):
+   - For `resource_create` (lines 458-465): Check mode explicitly, return early if disabled
+   - For `resource_update` (lines 610-616): Same pattern - check mode, return early if disabled
+   - Pattern: Check if mode is None (disabled) → return up_func immediately
+   - Only execute custom logic if mode is 'async'
+   - Let sync mode fall through to sync code
+
+**Files Modified**:
+- `ckanext/validation/logic.py`:
+  - Lines 452-454: Moved imports to top of resource_create
+  - Lines 458-465: Added early return for disabled mode in resource_create
+  - Lines 604-606: Moved imports to top of resource_update
+  - Lines 610-616: Added early return for disabled mode in resource_update
+- `.github/workflows/test.yml`:
+  - Line 68: Changed to run all tests in test directory
+
+**Results**: 127/128 tests passing (99.2%)! Only 1 test remaining.
+
+## Current Status Summary
+- **Total tests**: 135 (full test suite)
+- **Passing**: 127 (94%)
+- **Failing**: 1 (0.7%)
+- **Skipped**: 7
+- **Batches completed**: 8 (schema fields, async validation, double validation fix, package create/update validation, IPackageController hooks, resource_create fix, resource_update fix, global test suite fix)
+- **Status**: Almost complete - 1 test remaining
