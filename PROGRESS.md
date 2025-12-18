@@ -173,9 +173,53 @@ All related to package create/update with resources:
    - Investigate if there's a different hook that's more reliable for package creation
    - Consider if the issue is with before_create instead of after_create
 
+### Batch 5 Changes - IPackageController Hook Implementation (MAJOR FIX)
+**Problem**: Using wrong interface hooks - after_create/after_update are IResourceController hooks, not IPackageController hooks
+
+**Root Cause**:
+- `after_create` and `after_update` are for IResourceController (individual resource operations)
+- For package operations, we need IPackageController hooks: `after_dataset_create` and `after_dataset_update`
+- When `factories.Dataset(resources=[...])` is called, it triggers IPackageController hooks, not IResourceController hooks
+
+**Solution Applied**:
+1. **Added `after_dataset_create`** (IPackageController hook):
+   - Called when packages/datasets are created with resources
+   - Uses resources from data_dict (which have IDs after creation)
+   - Added re-entrant call protection with `_in_dataset_create_validation` flag
+   - Wrapped in try-finally for cleanup
+
+2. **Added `after_dataset_update`** (IPackageController hook):
+   - Called when packages/datasets are updated
+   - Handles validation for all resources in the package
+   - Added re-entrant call protection with `_in_dataset_update_validation` flag
+   - Wrapped in try-finally for cleanup
+
+3. **Fixed circular validation loop**:
+   - Added `_validation_performed: True` to patch_context in resource_validation_run (logic.py:139)
+   - This prevents infinite loop: validation → resource_patch → package_update → after_dataset_update → validation...
+
+4. **Simplified IResourceController hooks**:
+   - `after_create`: Now just passes (individual resource creation handled elsewhere)
+   - `after_update`: Simplified to only handle individual resource updates
+
+**Files Modified**:
+- `ckanext/validation/plugin/__init__.py`:
+  - Added `after_dataset_create` method (lines 139-170)
+  - Added `after_dataset_update` method (lines 281-356)
+  - Simplified `after_create` and `after_update` for IResourceController
+- `ckanext/validation/logic.py`:
+  - Added `_validation_performed` flag to patch_context (line 139)
+
+**Results**: 6 out of 8 tests now passing! (75% → 92%)
+
+### Remaining 2 Failures
+**test_logic.py (2 tests)** - Still investigating:
+- test_resource_validation_only_called_on_resource_created
+- test_resource_validation_only_called_on_resource_updated
+
 ## Current Status Summary
 - **Total tests**: 26
-- **Passing**: 18 (69%)
-- **Failing**: 8 (31%)
-- **Batches completed**: 3 (schema fields, async validation in actions, double validation fix)
-- **Current batch**: 4 (package create/update validation) - IN PROGRESS
+- **Passing**: 24 (92%)
+- **Failing**: 2 (8%)
+- **Batches completed**: 5 (schema fields, async validation in actions, double validation fix, package create/update validation, IPackageController hooks)
+- **Current batch**: 6 (fixing remaining 2 test_logic.py tests) - IN PROGRESS

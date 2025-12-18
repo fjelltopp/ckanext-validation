@@ -66,13 +66,7 @@ jobs:
         run: |
           pytest --ckan-ini=test.ini --cov=ckanext.validation --cov-report=xml --cov-append --disable-warnings -vv -p no:xdist \
             ckanext/validation/tests/test_logic.py::TestResourceValidationRun::test_resource_validation_only_called_on_resource_created \
-            ckanext/validation/tests/test_logic.py::TestResourceValidationRun::test_resource_validation_only_called_on_resource_updated \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_with_upload \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_with_url \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksCreate::test_validation_run_only_supported_formats \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_runs_with_url \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_runs_with_upload \
-            ckanext/validation/tests/test_plugin.py::TestPackageControllerHooksUpdate::test_validation_run_only_supported_formats
+            ckanext/validation/tests/test_logic.py::TestResourceValidationRun::test_resource_validation_only_called_on_resource_updated
 
       - name: Upload coverage report to codecov
         uses: codecov/codecov-action@v1

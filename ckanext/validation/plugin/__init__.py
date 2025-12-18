@@ -132,52 +132,42 @@ to create the database tables:
                 resources[i] = process_schema_fields(resource)
 
     def after_create(self, context, data_dict):
+        # IResourceController hook - called when individual resources are created
+        # For package creation, see after_dataset_create
+        pass
 
-        is_dataset = self._data_dict_is_dataset(data_dict)
-        log.debug('after_create called: is_dataset=%s, has_package=%s',
-                  is_dataset, 'package' in context)
+    def after_dataset_create(self, context, data_dict):
+        # IPackageController hook - called when datasets/packages are created
 
-        if not get_create_mode_from_config() == u'async':
-            log.debug('after_create: create mode not async, returning')
+        # Prevent re-entrant calls
+        if context.get('_in_dataset_create_validation'):
             return
 
-        if is_dataset:
-            # Try to get resources from the context's package object first
-            # The package object should have the resources with IDs
-            resources = []
-            if 'package' in context and hasattr(context['package'], 'resources'):
-                # Get resources from the model package object
-                resources = [
-                    {
-                        'id': r.id,
-                        'url': r.url,
-                        'url_type': r.url_type,
-                        'format': r.format,
-                    }
-                    for r in context['package'].resources
-                ]
-                log.debug('after_create: got %d resources from context package', len(resources))
-            else:
-                # Fall back to data_dict (may not have IDs)
-                resources = data_dict.get(u'resources', [])
-                log.debug('after_create: got %d resources from data_dict', len(resources))
+        if not get_create_mode_from_config() == u'async':
+            return
+
+        # Mark that we're processing this to prevent circular calls
+        context['_in_dataset_create_validation'] = True
+
+        try:
+            # Get the package ID - resources should be in data_dict
+            package_id = data_dict.get('id')
+            if not package_id:
+                return
+
+            # Use resources from data_dict which should have IDs after creation
+            resources = data_dict.get('resources', [])
 
             for resource in resources:
                 # Skip if already validated in custom action
                 resource_id = resource.get(u'id')
-                log.debug('after_create: checking resource %s, in_validated=%s',
-                         resource_id, resource_id in self.resources_validated_in_action if resource_id else False)
                 if resource_id and resource_id in self.resources_validated_in_action:
                     self.resources_validated_in_action.pop(resource_id, None)
-                    log.debug('after_create: skipping already validated resource %s', resource_id)
                     continue
                 self._handle_validation_for_resource(context, resource)
-        else:
-            # This is a resource. Resources don't need to be handled here
-            # as there is always a previous `package_update` call that will
-            # trigger the `before_update` and `after_update` hooks
-            log.debug('after_create: not a dataset, skipping')
-            pass
+        finally:
+            # Clean up the marker
+            context.pop('_in_dataset_create_validation', None)
 
     def _data_dict_is_dataset(self, data_dict):
         return (
@@ -259,13 +249,9 @@ to create the database tables:
         return updated_resource
 
     def after_update(self, context, data_dict):
+        # IResourceController hook - called when individual resources are updated
 
-        is_dataset = self._data_dict_is_dataset(data_dict)
-
-        # Need to allow create as well because resource_create calls
-        # package_update
-        if (not get_update_mode_from_config() == u'async'
-                and not get_create_mode_from_config() == u'async'):
+        if not get_update_mode_from_config() == u'async':
             return
 
         if context.get('_validation_performed'):
@@ -279,7 +265,45 @@ to create the database tables:
         if context.get('_validation_handled_in_action'):
             return
 
-        if is_dataset:
+        # This is a resource update
+        resource_id = data_dict[u'id']
+
+        if resource_id in self.resources_to_validate:
+            for plugin in p.PluginImplementations(IDataValidation):
+                if not plugin.can_validate(context, data_dict):
+                    log.debug('Skipping validation for resource %s', data_dict['id'])
+                    return
+
+            del self.resources_to_validate[resource_id]
+
+            _run_async_validation(resource_id)
+
+    def after_dataset_update(self, context, data_dict):
+        # IPackageController hook - called when datasets/packages are updated
+
+        # Prevent re-entrant calls
+        if context.get('_in_dataset_update_validation'):
+            return
+
+        # Need to allow create as well because resource_create calls package_update
+        if (not get_update_mode_from_config() == u'async'
+                and not get_create_mode_from_config() == u'async'):
+            return
+
+        if context.get('_validation_performed'):
+            # Ugly, but needed to avoid circular loops caused by the
+            # validation job calling resource_patch (which calls package_update)
+            del context['_validation_performed']
+            return
+
+        # Skip if validation already handled in custom action
+        if context.get('_validation_handled_in_action'):
+            return
+
+        # Mark that we're processing this to prevent circular calls
+        context['_in_dataset_update_validation'] = True
+
+        try:
             package_id = data_dict.get('id')
             if self.packages_to_skip.pop(package_id, None) or context.get('save', False):
                 # Either we're updating an individual resource,
@@ -314,6 +338,10 @@ to create the database tables:
                     self._handle_validation_for_resource(context, new_resource)
                     return
 
+            # This is an actual package_update call
+            # Validate all resources that can be validated
+            # Note: This may validate resources that didn't change, but it's the safest approach
+            # without being able to easily track what changed
             for resource in data_dict.get(u'resources', []):
                 if resource[u'id'] in self.resources_to_validate:
                     # This is part of a resource_update call, it will be
@@ -323,20 +351,9 @@ to create the database tables:
                     # This is an actual package_update call, validate the
                     # resources if necessary
                     self._handle_validation_for_resource(context, resource)
-
-        else:
-            # This is a resource
-            resource_id = data_dict[u'id']
-
-            if resource_id in self.resources_to_validate:
-                for plugin in p.PluginImplementations(IDataValidation):
-                    if not plugin.can_validate(context, data_dict):
-                        log.debug('Skipping validation for resource %s', data_dict['id'])
-                        return
-
-                del self.resources_to_validate[resource_id]
-
-                _run_async_validation(resource_id)
+        finally:
+            # Clean up the marker
+            context.pop('_in_dataset_update_validation', None)
 
     # IPackageController
 
