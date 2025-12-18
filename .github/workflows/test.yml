@@ -68,6 +68,7 @@ jobs:
             ckanext/validation/tests/
 
       - name: Upload coverage report to codecov
+        continue-on-error: true
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage.xml
