@@ -1,2 +1,0 @@
-Command 'pytest' not found, but can be installed with:
-sudo apt install python3-pytest
