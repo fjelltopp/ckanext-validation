@@ -450,9 +450,19 @@ def resource_create(up_func, context, data_dict):
 
     # Process schema fields before anything else
     from ckanext.validation.utils import process_schema_fields
+    from ckanext.validation.interfaces import IDataValidation
+    from ckanext.validation.plugin import ValidationPlugin, _run_async_validation
+
     data_dict = process_schema_fields(data_dict)
 
-    if get_create_mode_from_config() != 'sync':
+    create_mode = get_create_mode_from_config()
+
+    # If validation is disabled, just call upstream
+    if not create_mode:
+        context['_resource_create_call'] = True
+        return up_func(context, data_dict)
+
+    if create_mode == 'async':
         # Check if resource meets validation criteria
         needs_validation = (
             (data_dict.get(u'url_type') == u'upload' or data_dict.get(u'url')) and
@@ -460,8 +470,6 @@ def resource_create(up_func, context, data_dict):
         )
 
         if needs_validation:
-            from ckanext.validation.interfaces import IDataValidation
-            from ckanext.validation.plugin import ValidationPlugin
             should_validate = True
 
             for plugin in plugins.PluginImplementations(IDataValidation):
@@ -481,7 +489,6 @@ def resource_create(up_func, context, data_dict):
                         plugin_instance.resources_validated_in_action[result['id']] = True
 
                 # Then trigger validation
-                from ckanext.validation.plugin import _run_async_validation
                 _run_async_validation(result['id'])
 
                 return result
@@ -595,9 +602,18 @@ def resource_update(up_func, context, data_dict):
 
     # Process schema fields before anything else
     from ckanext.validation.utils import process_schema_fields
+    from ckanext.validation.interfaces import IDataValidation
+    from ckanext.validation.plugin import ValidationPlugin, _run_async_validation
+
     data_dict = process_schema_fields(data_dict)
 
-    if get_update_mode_from_config() != 'sync':
+    update_mode = get_update_mode_from_config()
+
+    # If validation is disabled, just call upstream
+    if not update_mode:
+        return up_func(context, data_dict)
+
+    if update_mode == 'async':
         # Get current resource to compare
         try:
             current_resource = t.get_action('resource_show')(
@@ -609,8 +625,6 @@ def resource_update(up_func, context, data_dict):
 
         # Check if validation will be needed BEFORE calling upstream
         # This way we can validate first, then mark it to prevent hook from double-validating
-        from ckanext.validation.interfaces import IDataValidation
-        from ckanext.validation.plugin import ValidationPlugin
         needs_validation = False
 
         # Note: we check data_dict fields here since result doesn't exist yet
@@ -644,15 +658,23 @@ def resource_update(up_func, context, data_dict):
 
             if should_validate:
                 # Mark resource as validated BEFORE calling up_func
+                # Also set packages_to_skip to prevent after_dataset_update from validating all resources
                 for plugin_instance in plugins.PluginImplementations(plugins.IResourceController):
                     if isinstance(plugin_instance, ValidationPlugin):
                         plugin_instance.resources_validated_in_action[data_dict['id']] = True
+
+                        # Set packages_to_skip so after_dataset_update doesn't validate other resources
+                        # We need to get the package_id
+                        resource_package_id = data_dict.get('package_id')
+                        if not resource_package_id and current_resource:
+                            resource_package_id = current_resource.get('package_id')
+                        if resource_package_id:
+                            plugin_instance.packages_to_skip[resource_package_id] = True
 
                 # Call upstream first to update the resource
                 result = up_func(context, data_dict)
 
                 # Then trigger validation
-                from ckanext.validation.plugin import _run_async_validation
                 _run_async_validation(result['id'])
 
                 return result

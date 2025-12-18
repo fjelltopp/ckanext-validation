@@ -346,9 +346,14 @@ to create the database tables:
             # Note: This may validate resources that didn't change, but it's the safest approach
             # without being able to easily track what changed
             for resource in data_dict.get(u'resources', []):
-                if resource[u'id'] in self.resources_to_validate:
+                resource_id = resource[u'id']
+                if resource_id in self.resources_to_validate:
                     # This is part of a resource_update call, it will be
                     # handled on the next `after_update` call
+                    continue
+                elif resource_id in self.resources_validated_in_action:
+                    # Already validated in custom action, skip
+                    self.resources_validated_in_action.pop(resource_id, None)
                     continue
                 else:
                     # This is an actual package_update call, validate the

@@ -243,13 +243,44 @@ All related to package create/update with resources:
 
 **Results**: 1 of 2 tests now passing! (92% → 96%)
 
-### Remaining 1 Failure
-**test_logic.py**:
-- test_resource_validation_only_called_on_resource_updated - Still getting 3 validation calls instead of 1
+### Batch 7 Changes - Fix Resource Update Triple Validation (FINAL FIX - ALL TESTS PASSING!) ✅
+**Problem**: test_resource_validation_only_called_on_resource_updated getting 3 validation calls instead of 1
 
-## Current Status Summary
+**Root Cause Investigation**:
+Through debug logging, discovered that:
+1. Custom resource_update action triggered validation (expected - 1 call)
+2. after_dataset_update triggered validation for resource_2 (the OTHER resource in the package - NOT expected - 1 call)
+3. Total: 2 calls detected, but test showed 3
+
+Further investigation revealed the real issue:
+- When custom resource_update calls `up_func(context, data_dict)`, it bypasses CKAN's action framework
+- This means hooks like `before_update` are NOT called automatically
+- `before_update` is responsible for setting `packages_to_skip[package_id] = True`
+- Without this flag, `after_dataset_update` falls through to the "actual package_update" path
+- This path validates ALL resources in the package, not just the one being updated
+
+**Solution Applied**:
+In `resource_update` action (logic.py lines 652-658):
+- When marking resource as validated, also manually set `packages_to_skip[package_id] = True`
+- This ensures `after_dataset_update` enters the packages_to_skip block
+- In that block, resources are only validated if they're in `resources_to_validate`
+- Other resources in the package are skipped
+
+In `after_dataset_update` (plugin/__init__.py lines 355-358):
+- Added check for `resources_validated_in_action` in the "actual package_update" path
+- This provides a safety net in case packages_to_skip isn't set properly
+
+**Files Modified**:
+- `ckanext/validation/logic.py`:
+  - Lines 652-658: Set packages_to_skip when marking resource as validated
+- `ckanext/validation/plugin/__init__.py`:
+  - Lines 355-358: Added resources_validated_in_action check in package_update path
+
+**Results**: ALL TESTS PASSING! (96% → 100%) 🎉
+
+## Final Status Summary
 - **Total tests**: 26
-- **Passing**: 25 (96%)
-- **Failing**: 1 (4%)
-- **Batches completed**: 6 (schema fields, async validation in actions, double validation fix, package create/update validation, IPackageController hooks, partial fix for double validation)
-- **Current batch**: 7 (fixing remaining resource_update triple validation) - IN PROGRESS
+- **Passing**: 26 (100%)
+- **Failing**: 0 (0%)
+- **Batches completed**: 7 (schema fields, async validation in actions, double validation fix, package create/update validation, IPackageController hooks, resource_create double validation fix, resource_update triple validation fix)
+- **Status**: COMPLETE ✅
