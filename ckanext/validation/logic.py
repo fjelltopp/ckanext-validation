@@ -613,6 +613,11 @@ def resource_update(up_func, context, data_dict):
     if not update_mode:
         return up_func(context, data_dict)
 
+    # Skip validation trigger if this update is from validation itself
+    # to prevent infinite recursion
+    if context.get('_validation_performed'):
+        return up_func(context, data_dict)
+
     if update_mode == 'async':
         # Get current resource to compare
         try:

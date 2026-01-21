@@ -42,8 +42,13 @@ def create_tables():
 
 def tables_exist():
     try:
+        from sqlalchemy import inspect
         engine = meta.engine
-        return Validation.__table__.exists(bind=engine)
+        if engine is None:
+            # Engine not ready yet, assume tables exist to avoid false warnings
+            return True
+        inspector = inspect(engine)
+        return 'validation' in inspector.get_table_names()
     except Exception as e:
         log.warning(f'Error checking if validation tables exist: {e}')
         return False

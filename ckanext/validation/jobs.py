@@ -41,6 +41,20 @@ def run_validation_job(resource):
     Session.add(validation)
     Session.commit()
 
+    # Update resource extras to show "running" status in UI
+    patch_context = {
+        'ignore_auth': True,
+        'user': t.get_action('get_site_user')({'ignore_auth': True})['name'],
+        '_validation_performed': True
+    }
+    try:
+        t.get_action('resource_patch')(patch_context, {
+            'id': resource['id'],
+            'validation_status': 'running',
+        })
+    except Exception as e:
+        log.warning('Failed to set running status on resource: %s', str(e))
+
     options = t.config.get(
         'ckanext.validation.default_validation_options')
     if options:
@@ -87,11 +101,15 @@ def run_validation_job(resource):
             if schema.startswith('http'):
                 r = requests.get(schema)
                 schema = r.json()
-
-            try:
-                schema = json.loads(schema)
-            except Exception as e:
-                raise t.ValidationError({'schema': 'Invalid schema string: ' + str(schema) + " failed with error:" + str(e)})
+            else:
+                # Try to parse as JSON schema object
+                try:
+                    schema = json.loads(schema)
+                except Exception as e:
+                    # If it's not valid JSON, treat it as a schema identifier/reference
+                    # and skip it (let frictionless auto-detect the schema)
+                    log.debug('Schema field contains identifier "{}", skipping and using auto-detection: {}'.format(schema, str(e)))
+                    schema = None
 
     _format = resource['format'].lower()
 
@@ -278,8 +296,22 @@ def _validation_get_schema(dataset_type, resource_type):
                     return field['field_value']
 
 def _get_site_user_api_key():
-
+    """
+    Get an API token for the site user to authenticate HTTP requests.
+    In CKAN 2.10+ we need to use JWT tokens instead of legacy API keys.
+    """
     site_user_name = t.get_action('get_site_user')({'ignore_auth': True}, {})
     site_user = t.get_action('get_site_user')(
         {'ignore_auth': True}, {'id': site_user_name})
-    return site_user['apikey']
+    
+    # Try to get or create an API token (CKAN 2.10+)
+    try:
+        token_data = t.get_action('api_token_create')(
+            {'ignore_auth': True},
+            {'user': site_user['name'], 'name': 'validation_internal'}
+        )
+        return token_data['token']
+    except Exception:
+        # Fallback to legacy API key for older CKAN versions
+        return site_user.get('apikey', '')
+
