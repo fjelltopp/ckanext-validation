@@ -23,6 +23,11 @@ from ckanext.validation.utils import get_update_mode_from_config
 
 log = logging.getLogger(__name__)
 
+# Module-level cache for the site user's JWT. Populated on the first call to
+# _get_site_user_api_key() in a given worker process, and reused forever after
+# so we don't mint a fresh admin token on every validation run.
+_cached_site_user_token = None
+
 
 def run_validation_job(resource):
 
@@ -87,11 +92,20 @@ def run_validation_job(resource):
                 t.config.get('ckanext.validation.pass_auth_header', True))
             if pass_auth_header:
                 s = requests.Session()
-                s.headers.update({
-                    'Authorization': t.config.get(
-                        'ckanext.validation.pass_auth_header_value',
-                        _get_site_user_api_key())
-                })
+
+                # SECURITY: resource['url'] is editor-writable. If we blindly
+                # attached the site-user JWT to every outbound request, an
+                # editor could point the URL at their own host and harvest an
+                # admin token from the Authorization header. Restrict the
+                # header to requests that stay on our own CKAN site.
+                site_url = t.config.get('ckan.site_url', '').rstrip('/')
+                target = resource.get('url', '')
+                if site_url and target.startswith(site_url):
+                    s.headers.update({
+                        'Authorization': t.config.get(
+                            'ckanext.validation.pass_auth_header_value',
+                            _get_site_user_api_key())
+                    })
 
                 options['http_session'] = s
 
@@ -301,21 +315,36 @@ def _validation_get_schema(dataset_type, resource_type):
 
 def _get_site_user_api_key():
     """
-    Get an API token for the site user to authenticate HTTP requests.
-    In CKAN 2.10+ we need to use JWT tokens instead of legacy API keys.
+    Return a JWT for the site user. Cached per worker process; on first call
+    any stale 'validation_internal' tokens are revoked so the api_token table
+    doesn't accumulate one live admin token per validation run.
     """
-    site_user_name = t.get_action('get_site_user')({'ignore_auth': True}, {})
-    site_user = t.get_action('get_site_user')(
-        {'ignore_auth': True}, {'id': site_user_name})
-    
-    # Try to get or create an API token (CKAN 2.10+)
+    # Declare we're using the module-level cache variable (see top of file)
+    # so the reassignment below updates the shared box, not a local copy.
+    global _cached_site_user_token
+
+    # Fast path: already minted a token earlier in this process — reuse it.
+    if _cached_site_user_token:
+        return _cached_site_user_token
+
+    site_user = t.get_action('get_site_user')({'ignore_auth': True}, {})
     try:
+        # Sweep any leftover 'validation_internal' tokens (from prior worker
+        # runs that predate this caching logic) so they don't stay live.
+        existing = t.get_action('api_token_list')(
+            {'ignore_auth': True}, {'user': site_user['name']})
+        for tok in existing:
+            if tok.get('name') == 'validation_internal':
+                t.get_action('api_token_revoke')(
+                    {'ignore_auth': True}, {'jti': tok['id']})
+
+        # Mint the one token we'll use for the lifetime of this process.
         token_data = t.get_action('api_token_create')(
             {'ignore_auth': True},
-            {'user': site_user['name'], 'name': 'validation_internal'}
-        )
-        return token_data['token']
+            {'user': site_user['name'], 'name': 'validation_internal'})
+        _cached_site_user_token = token_data['token']
+        return _cached_site_user_token
     except Exception:
-        # Fallback to legacy API key for older CKAN versions
+        # Older CKAN without api_token_* actions — fall back to legacy apikey.
         return site_user.get('apikey', '')
 
