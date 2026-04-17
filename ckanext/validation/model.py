@@ -45,8 +45,11 @@ def tables_exist():
         from sqlalchemy import inspect
         engine = meta.engine
         if engine is None:
-            # Engine not ready yet, assume tables exist to avoid false warnings
-            return True
+            log.warning(
+                'Validation tables could not be checked because the database '
+                'engine is not available'
+            )
+            return False
         inspector = inspect(engine)
         return 'validation' in inspector.get_table_names()
     except Exception as e:

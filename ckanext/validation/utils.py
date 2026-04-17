@@ -1,7 +1,6 @@
 import os
 import logging
 import cgi
-import json
 
 from werkzeug.datastructures import FileStorage as FlaskFileStorage
 from ckan.lib.uploader import ResourceUpload
