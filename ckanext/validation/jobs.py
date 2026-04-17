@@ -41,19 +41,23 @@ def run_validation_job(resource):
     Session.add(validation)
     Session.commit()
 
-    # Update resource extras to show "running" status in UI
-    patch_context = {
-        'ignore_auth': True,
-        'user': t.get_action('get_site_user')({'ignore_auth': True})['name'],
-        '_validation_performed': True
-    }
-    try:
-        t.get_action('resource_patch')(patch_context, {
-            'id': resource['id'],
-            'validation_status': 'running',
-        })
-    except Exception as e:
-        log.warning('Failed to set running status on resource: %s', str(e))
+    # Update resource extras to show "running" status in UI. Only meaningful
+    # in async mode — in sync mode the request blocks until validation
+    # finishes, so the UI never observes an intermediate "running" state, and
+    # the patch would re-enter the chained sync resource_update path.
+    if get_update_mode_from_config() != 'sync':
+        patch_context = {
+            'ignore_auth': True,
+            'user': t.get_action('get_site_user')({'ignore_auth': True})['name'],
+            '_validation_performed': True
+        }
+        try:
+            t.get_action('resource_patch')(patch_context, {
+                'id': resource['id'],
+                'validation_status': 'running',
+            })
+        except Exception as e:
+            log.warning('Failed to set running status on resource: %s', str(e))
 
     options = t.config.get(
         'ckanext.validation.default_validation_options')
