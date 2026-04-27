@@ -135,7 +135,8 @@ def resource_validation_run(context, data_dict):
 
     patch_context = {
         'ignore_auth': True,
-        'user': t.get_action('get_site_user')({'ignore_auth': True})['name']
+        'user': t.get_action('get_site_user')({'ignore_auth': True})['name'],
+        '_validation_performed': True  # Prevent circular validation loops
     }
     t.get_action('resource_patch')(patch_context, data_dict)
 
@@ -447,7 +448,53 @@ def resource_create(up_func, context, data_dict):
 
     '''
 
-    if get_create_mode_from_config() != 'sync':
+    # Process schema fields before anything else
+    from ckanext.validation.utils import process_schema_fields
+    from ckanext.validation.interfaces import IDataValidation
+    from ckanext.validation.plugin import ValidationPlugin, _run_async_validation
+
+    data_dict = process_schema_fields(data_dict)
+
+    create_mode = get_create_mode_from_config()
+
+    # If validation is disabled, just call upstream
+    if not create_mode:
+        context['_resource_create_call'] = True
+        return up_func(context, data_dict)
+
+    if create_mode == 'async':
+        # Check if resource meets validation criteria
+        needs_validation = (
+            (data_dict.get(u'url_type') == u'upload' or data_dict.get(u'url')) and
+            data_dict.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS
+        )
+
+        if needs_validation:
+            should_validate = True
+
+            for plugin in plugins.PluginImplementations(IDataValidation):
+                if not plugin.can_validate(context, data_dict):
+                    log.debug('Skipping validation for resource')
+                    should_validate = False
+                    break
+
+            if should_validate:
+                # Call upstream to create the resource first
+                context['_resource_create_call'] = True
+                result = up_func(context, data_dict)
+
+                # Mark as validated BEFORE triggering validation
+                for plugin_instance in plugins.PluginImplementations(plugins.IResourceController):
+                    if isinstance(plugin_instance, ValidationPlugin):
+                        plugin_instance.resources_validated_in_action[result['id']] = True
+
+                # Then trigger validation
+                _run_async_validation(result['id'])
+
+                return result
+
+        # If no validation needed, just call upstream
+        context['_resource_create_call'] = True
         return up_func(context, data_dict)
 
     model = context['model']
@@ -553,7 +600,91 @@ def resource_update(up_func, context, data_dict):
 
     '''
 
-    if get_update_mode_from_config() != 'sync':
+    # Process schema fields before anything else
+    from ckanext.validation.utils import process_schema_fields
+    from ckanext.validation.interfaces import IDataValidation
+    from ckanext.validation.plugin import ValidationPlugin, _run_async_validation
+
+    data_dict = process_schema_fields(data_dict)
+
+    update_mode = get_update_mode_from_config()
+
+    # If validation is disabled, just call upstream
+    if not update_mode:
+        return up_func(context, data_dict)
+
+    if update_mode == 'async':
+        # Skip validation trigger if this update is from validation itself
+        # to prevent infinite recursion. Only applies to async — sync has
+        # its own _skip_next_validation guard further down.
+        if context.get('_validation_performed'):
+            return up_func(context, data_dict)
+
+        # Get current resource to compare
+        try:
+            current_resource = t.get_action('resource_show')(
+                context={'ignore_auth': True},
+                data_dict={'id': data_dict['id']}
+            )
+        except Exception:
+            current_resource = {}
+
+        # Check if validation will be needed BEFORE calling upstream
+        # This way we can validate first, then mark it to prevent hook from double-validating
+        needs_validation = False
+
+        # Note: we check data_dict fields here since result doesn't exist yet
+        if ((
+            # New file uploaded (check data_dict for upload field)
+            data_dict.get(u'upload') or
+            # External URL changed (compare data_dict to current)
+            data_dict.get(u'url') != current_resource.get(u'url') or
+            # Schema changed
+            (data_dict.get(u'schema') != current_resource.get(u'schema')) or
+            # Format changed
+            (data_dict.get(u'format', u'').lower() !=
+             current_resource.get(u'format', u'').lower())
+            ) and (
+            # Make sure format is supported
+            data_dict.get(u'format', u'').lower() in settings.SUPPORTED_FORMATS
+                )):
+            needs_validation = True
+
+        if needs_validation:
+            should_validate = True
+            # Use current_resource data for can_validate since result doesn't exist yet
+            check_resource = dict(current_resource)
+            check_resource.update(data_dict)
+
+            for plugin in plugins.PluginImplementations(IDataValidation):
+                if not plugin.can_validate(context, check_resource):
+                    log.debug('Skipping validation for resource {}'.format(check_resource['id']))
+                    should_validate = False
+                    break
+
+            # Mark resource and set packages_to_skip regardless of whether can_validate passed
+            # This prevents after_dataset_update from calling can_validate again
+            for plugin_instance in plugins.PluginImplementations(plugins.IResourceController):
+                if isinstance(plugin_instance, ValidationPlugin):
+                    plugin_instance.resources_validated_in_action[data_dict['id']] = True
+
+                    # Set packages_to_skip so after_dataset_update doesn't validate other resources
+                    resource_package_id = data_dict.get('package_id')
+                    if not resource_package_id and current_resource:
+                        resource_package_id = current_resource.get('package_id')
+                    if resource_package_id:
+                        plugin_instance.packages_to_skip[resource_package_id] = True
+
+            # Call upstream first to update the resource
+            result = up_func(context, data_dict)
+
+            # Only trigger validation if can_validate passed
+            if should_validate:
+                _run_async_validation(result['id'])
+
+            return result
+
+        # If no validation needed, just call upstream
         return up_func(context, data_dict)
 
     model = context['model']

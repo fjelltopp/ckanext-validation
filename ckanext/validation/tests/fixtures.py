@@ -15,4 +15,4 @@ def validation_setup():
 @pytest.fixture
 def mock_uploads(ckan_config, monkeypatch, tmp_path):
     monkeypatch.setitem(ckan_config, "ckan.storage_path", str(tmp_path))
-    monkeypatch.setattr(uploader, "_storage_path", str(tmp_path))
+    # In CKAN 2.11, _storage_path was removed, just setting ckan.storage_path is sufficient

@@ -9,6 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import JSON
 
 from ckan.model.meta import metadata
+from ckan.model import meta
 
 log = logging.getLogger(__name__)
 
@@ -33,10 +34,24 @@ class Validation(Base):
 
 
 def create_tables():
-    Validation.__table__.create()
+    engine = meta.engine
+    Validation.__table__.create(bind=engine)
 
     log.info(u'Validation database tables created')
 
 
 def tables_exist():
-    return Validation.__table__.exists()
+    try:
+        from sqlalchemy import inspect
+        engine = meta.engine
+        if engine is None:
+            log.warning(
+                'Validation tables could not be checked because the database '
+                'engine is not available'
+            )
+            return False
+        inspector = inspect(engine)
+        return 'validation' in inspector.get_table_names()
+    except Exception as e:
+        log.warning(f'Error checking if validation tables exist: {e}')
+        return False

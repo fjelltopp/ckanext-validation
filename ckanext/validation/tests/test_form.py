@@ -2,6 +2,7 @@ import json
 import io
 from unittest import mock
 import datetime
+import re
 
 import pytest
 
@@ -12,6 +13,32 @@ from ckantoolkit.tests.helpers import (
 )
 
 from ckanext.validation.tests.helpers import VALID_CSV, INVALID_CSV
+
+
+def _get_csrf_token(response):
+    """Extract CSRF token from response"""
+    match = re.search(r'<meta name="_csrf_token" content="([^"]+)"', str(response.body))
+    if match:
+        return match.group(1)
+    return None
+
+
+def _post_resource_form(app, url, data, user=None):
+    """Helper to POST resource form with CSRF token"""
+    if user is None:
+        user = Sysadmin()
+    env = {"REMOTE_USER": user["name"].encode("ascii")}
+
+    # Get CSRF token from form page - this establishes the session
+    form_response = app.get(url=url, extra_environ=env)
+    csrf_token = _get_csrf_token(form_response)
+
+    # Add CSRF token to data
+    if csrf_token:
+        data["_csrf_token"] = csrf_token
+
+    # POST form - WebTest automatically maintains cookies/session from the GET
+    return app.post(url=url, extra_environ=env, data=data)
 
 
 def _new_resource_url(dataset_id):
@@ -32,7 +59,7 @@ def _get_resource_new_page_as_sysadmin(app, id):
     user = Sysadmin()
     env = {"REMOTE_USER": user["name"].encode("ascii")}
     response = app.get(
-        url="/dataset/new_resource/{}".format(id),
+        url="/dataset/{}/resource/new".format(id),
         extra_environ=env,
     )
     return env, response
@@ -42,7 +69,7 @@ def _get_resource_update_page_as_sysadmin(app, id, resource_id):
     user = Sysadmin()
     env = {"REMOTE_USER": user["name"].encode("ascii")}
     response = app.get(
-        url="/dataset/{}/resource_edit/{}".format(id, resource_id),
+        url="/dataset/{}/resource/{}/edit".format(id, resource_id),
         extra_environ=env,
     )
     return env, response
@@ -71,12 +98,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -96,12 +118,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -121,13 +138,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -145,13 +156,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -177,13 +182,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -206,13 +205,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -234,13 +227,7 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -265,19 +252,14 @@ class TestResourceSchemaForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
         assert dataset["resources"][0]["schema"] == value
 
 
-@pytest.mark.usefixtures("clean_db", "validation_setup")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "with_plugins")
 class TestResourceValidationOptionsForm(object):
     def test_resource_form_includes_json_fields(self, app):
         dataset = Dataset()
@@ -302,13 +284,7 @@ class TestResourceValidationOptionsForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -343,20 +319,14 @@ class TestResourceValidationOptionsForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
         assert dataset["resources"][0]["validation_options"] == value
 
 
-@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads", "with_plugins")
 @pytest.mark.ckan_config("ckanext.validation.run_on_create_sync", True)
 class TestResourceValidationOnCreateForm(object):
 
@@ -372,13 +342,7 @@ class TestResourceValidationOnCreateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
 
         dataset = call_action("package_show", id=dataset["id"])
 
@@ -397,19 +361,14 @@ class TestResourceValidationOnCreateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        response = app.post(
-            url=_new_resource_url(dataset['id']),
-            extra_environ=env,
-            data=data
-        )
+        response = _post_resource_form(app, _new_resource_url(dataset['id']), data, user)
+        
         assert "validation" in response.body
         assert "missing-cell" in response.body
         assert 'Row at position \\&#34;2\\&#34; has a missing cell in field \\&#34;d\\&#34; at position \\&#34;4\\&#34;' in response.body
         assert "This row has less values compared to the header row" in response.body
 
-@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "mock_uploads", "with_plugins")
 @pytest.mark.ckan_config("ckanext.validation.run_on_update_sync", True)
 class TestResourceValidationOnUpdateForm(object):
 
@@ -424,13 +383,8 @@ class TestResourceValidationOnUpdateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
-        app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
+        
         dataset = call_action("package_show", id=dataset["id"])
 
         assert dataset["resources"][0]["validation_status"] == "success"
@@ -449,21 +403,15 @@ class TestResourceValidationOnUpdateForm(object):
         }
 
         user = Sysadmin()
-        env = {"REMOTE_USER": user["name"].encode("ascii")}
-
         dataset2 = call_action("package_show", id=dataset["id"])
-        response = app.post(
-            url=_edit_resource_url(dataset['id'], dataset['resources'][0]['id']),
-            extra_environ=env,
-            data=data
-        )
+        response = _post_resource_form(app, _edit_resource_url(dataset['id'], dataset['resources'][0]['id']), data, user)
 
         assert "validation" in response.body
         assert "missing-cell" in response.body
         assert "This row has less values compared to the header row" in response.body
 
 
-@pytest.mark.usefixtures("clean_db", "validation_setup")
+@pytest.mark.usefixtures("clean_db", "validation_setup", "with_plugins")
 class TestResourceValidationFieldsPersisted(object):
     @classmethod
     def setup_class(cls):
